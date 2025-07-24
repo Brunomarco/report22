@@ -1,3 +1,14 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings('ignore')
+
+# Configure Streamlit page
+
 # Executive Summary
         st.markdown('<div class="report-section">', unsafe_allow_html=True)
         st.markdown("## 1. Executive Summary")
