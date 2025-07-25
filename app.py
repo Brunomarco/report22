@@ -1,14 +1,3 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime, timedelta
-import warnings
-warnings.filterwarnings('ignore')
-
-# Configure Streamlit page
-
 # Executive Summary
         st.markdown('<div class="report-section">', unsafe_allow_html=True)
         st.markdown("## 1. Executive Summary")
@@ -1388,7 +1377,7 @@ if tms_data is not None:
         """)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # TAB 5: Lane Network
+# TAB 5: Lane Network
     with tab5:
         st.markdown('<h2 class="section-header">Lane Network & Route Analysis</h2>', unsafe_allow_html=True)
         
@@ -1469,206 +1458,7 @@ if tms_data is not None:
                 fig.update_layout(showlegend=False, height=350)
                 st.plotly_chart(fig, use_container_width=True)
             
-            # Add comprehensive lane network visualization
-            st.markdown('<p class="chart-title">Complete Lane Network Analysis</p>', unsafe_allow_html=True)
-            
-            # Create comprehensive lane data based on the Excel
-            all_lanes_data = [
-                # From NL (main hub)
-                {'Origin': 'NL', 'Destination': 'AT', 'Volume': 4, 'Distance': 1100},
-                {'Origin': 'NL', 'Destination': 'BE', 'Volume': 3, 'Distance': 170},
-                {'Origin': 'NL', 'Destination': 'DE', 'Volume': 7, 'Distance': 400},
-                {'Origin': 'NL', 'Destination': 'DK', 'Volume': 2, 'Distance': 700},
-                {'Origin': 'NL', 'Destination': 'ES', 'Volume': 1, 'Distance': 1500},
-                {'Origin': 'NL', 'Destination': 'FR', 'Volume': 11, 'Distance': 500},
-                {'Origin': 'NL', 'Destination': 'GB', 'Volume': 2, 'Distance': 350},
-                {'Origin': 'NL', 'Destination': 'IT', 'Volume': 12, 'Distance': 1300},
-                {'Origin': 'NL', 'Destination': 'NL', 'Volume': 8, 'Distance': 100},
-                {'Origin': 'NL', 'Destination': 'US', 'Volume': 6, 'Distance': 6000},
-                {'Origin': 'NL', 'Destination': 'AU', 'Volume': 3, 'Distance': 16000},
-                {'Origin': 'NL', 'Destination': 'NZ', 'Volume': 3, 'Distance': 18000},
-                {'Origin': 'NL', 'Destination': 'SE', 'Volume': 1, 'Distance': 1100},
-                {'Origin': 'NL', 'Destination': 'N1', 'Volume': 4, 'Distance': 800},
-                
-                # From other countries
-                {'Origin': 'FR', 'Destination': 'NL', 'Volume': 6, 'Distance': 500},
-                {'Origin': 'DE', 'Destination': 'NL', 'Volume': 14, 'Distance': 400},
-                {'Origin': 'BE', 'Destination': 'NL', 'Volume': 4, 'Distance': 170},
-                {'Origin': 'BE', 'Destination': 'GB', 'Volume': 2, 'Distance': 300},
-                {'Origin': 'BE', 'Destination': 'IT', 'Volume': 4, 'Distance': 1100},
-                {'Origin': 'IT', 'Destination': 'NL', 'Volume': 2, 'Distance': 1300},
-                {'Origin': 'IT', 'Destination': 'BE', 'Volume': 1, 'Distance': 1100},
-                {'Origin': 'IT', 'Destination': 'FR', 'Volume': 1, 'Distance': 900},
-                {'Origin': 'GB', 'Destination': 'NL', 'Volume': 2, 'Distance': 350},
-                {'Origin': 'GB', 'Destination': 'FR', 'Volume': 1, 'Distance': 400},
-                {'Origin': 'GB', 'Destination': 'BE', 'Volume': 1, 'Distance': 300},
-                {'Origin': 'AT', 'Destination': 'NL', 'Volume': 4, 'Distance': 1100},
-                {'Origin': 'DK', 'Destination': 'NL', 'Volume': 3, 'Distance': 700},
-                {'Origin': 'CH', 'Destination': 'NL', 'Volume': 3, 'Distance': 800},
-                {'Origin': 'CH', 'Destination': 'IT', 'Volume': 1, 'Distance': 300},
-                {'Origin': 'PL', 'Destination': 'NL', 'Volume': 4, 'Distance': 1100},
-                {'Origin': 'FI', 'Destination': 'NL', 'Volume': 1, 'Distance': 1500},
-                {'Origin': 'CN', 'Destination': 'NL', 'Volume': 1, 'Distance': 8000},
-                {'Origin': 'HK', 'Destination': 'NL', 'Volume': 1, 'Distance': 9000},
-            ]
-            
-            lanes_df = pd.DataFrame(all_lanes_data)
-            
-            # Create multiple visualizations
-            tab_net1, tab_net2, tab_net3, tab_net4 = st.tabs([
-                "Network Flow", "Geographic View", "Volume Analysis", "Efficiency Matrix"
-            ])
-            
-            with tab_net1:
-                # Sankey diagram for network flow
-                st.markdown("**Network Flow Visualization**")
-                
-                # Prepare data for Sankey
-                all_origins = lanes_df['Origin'].unique()
-                all_destinations = lanes_df['Destination'].unique()
-                all_nodes = list(set(list(all_origins) + list(all_destinations)))
-                
-                source_indices = [all_nodes.index(orig) for orig in lanes_df['Origin']]
-                target_indices = [all_nodes.index(dest) for dest in lanes_df['Destination']]
-                
-                fig = go.Figure(data=[go.Sankey(
-                    node=dict(
-                        pad=15,
-                        thickness=20,
-                        line=dict(color="black", width=0.5),
-                        label=all_nodes,
-                        color="lightblue"
-                    ),
-                    link=dict(
-                        source=source_indices,
-                        target=target_indices,
-                        value=lanes_df['Volume'],
-                        color="rgba(0,0,255,0.2)"
-                    )
-                )])
-                
-                fig.update_layout(title="Trade Lane Flow Network", height=600)
-                st.plotly_chart(fig, use_container_width=True)
-            
-            with tab_net2:
-                # Scatter geo map
-                st.markdown("**Geographic Lane Distribution**")
-                
-                # Add coordinates for visualization
-                country_coords = {
-                    'NL': {'lat': 52.37, 'lon': 4.89, 'name': 'Netherlands'},
-                    'DE': {'lat': 51.16, 'lon': 10.45, 'name': 'Germany'},
-                    'FR': {'lat': 46.60, 'lon': 1.88, 'name': 'France'},
-                    'IT': {'lat': 41.87, 'lon': 12.56, 'name': 'Italy'},
-                    'BE': {'lat': 50.50, 'lon': 4.47, 'name': 'Belgium'},
-                    'GB': {'lat': 55.38, 'lon': -3.43, 'name': 'UK'},
-                    'ES': {'lat': 40.46, 'lon': -3.75, 'name': 'Spain'},
-                    'AT': {'lat': 47.52, 'lon': 14.55, 'name': 'Austria'},
-                    'DK': {'lat': 56.26, 'lon': 9.50, 'name': 'Denmark'},
-                    'SE': {'lat': 60.13, 'lon': 18.64, 'name': 'Sweden'},
-                    'PL': {'lat': 51.92, 'lon': 19.14, 'name': 'Poland'},
-                    'CH': {'lat': 46.82, 'lon': 8.23, 'name': 'Switzerland'},
-                    'US': {'lat': 37.09, 'lon': -95.71, 'name': 'USA'},
-                    'AU': {'lat': -25.27, 'lon': 133.77, 'name': 'Australia'},
-                    'NZ': {'lat': -40.90, 'lon': 174.88, 'name': 'New Zealand'},
-                    'N1': {'lat': 62.00, 'lon': 15.00, 'name': 'Norway'},
-                    'FI': {'lat': 61.92, 'lon': 25.75, 'name': 'Finland'},
-                    'CN': {'lat': 35.86, 'lon': 104.19, 'name': 'China'},
-                    'HK': {'lat': 22.40, 'lon': 114.11, 'name': 'Hong Kong'}
-                }
-                
-                # Create connection lines
-                fig = go.Figure()
-                
-                # Add lines for each lane
-                for _, lane in lanes_df.iterrows():
-                    if lane['Origin'] in country_coords and lane['Destination'] in country_coords:
-                        fig.add_trace(go.Scattergeo(
-                            lon=[country_coords[lane['Origin']]['lon'], country_coords[lane['Destination']]['lon']],
-                            lat=[country_coords[lane['Origin']]['lat'], country_coords[lane['Destination']]['lat']],
-                            mode='lines',
-                            line=dict(width=lane['Volume']/3, color='blue'),
-                            opacity=0.6,
-                            showlegend=False,
-                            hovertext=f"{lane['Origin']} → {lane['Destination']}: {lane['Volume']} shipments"
-                        ))
-                
-                # Add country markers
-                for country, coords in country_coords.items():
-                    # Calculate total volume for sizing
-                    out_volume = lanes_df[lanes_df['Origin'] == country]['Volume'].sum()
-                    in_volume = lanes_df[lanes_df['Destination'] == country]['Volume'].sum()
-                    total_volume = out_volume + in_volume
-                    
-                    fig.add_trace(go.Scattergeo(
-                        lon=[coords['lon']],
-                        lat=[coords['lat']],
-                        text=coords['name'],
-                        mode='markers+text',
-                        marker=dict(
-                            size=total_volume/2 + 10,
-                            color='red' if country == 'NL' else 'green',
-                            line=dict(width=2, color='white')
-                        ),
-                        showlegend=False,
-                        textposition='top center'
-                    ))
-                
-                fig.update_layout(
-                    title='Global Lane Network',
-                    geo=dict(
-                        projection_type='natural earth',
-                        showland=True,
-                        landcolor='rgb(243, 243, 243)',
-                        coastlinecolor='rgb(204, 204, 204)',
-                        showlakes=False,
-                        lakecolor='rgb(255, 255, 255)',
-                        showcountries=True,
-                        countrycolor='rgb(204, 204, 204)'
-                    ),
-                    height=600
-                )
-                st.plotly_chart(fig, use_container_width=True)
-            
-            with tab_net3:
-                # Volume distribution analysis
-                st.markdown("**Lane Volume Distribution**")
-                
-                lanes_df['Lane'] = lanes_df['Origin'] + ' → ' + lanes_df['Destination']
-                lanes_df_sorted = lanes_df.sort_values('Volume', ascending=True).tail(30)
-                
-                fig = px.bar(lanes_df_sorted, y='Lane', x='Volume',
-                           orientation='h',
-                           title='Top 30 Trade Lanes by Volume',
-                           color='Volume',
-                           color_continuous_scale='Viridis',
-                           text='Volume')
-                fig.update_traces(texttemplate='%{text}', textposition='outside')
-                fig.update_layout(height=800, showlegend=False)
-                st.plotly_chart(fig, use_container_width=True)
-            
-            with tab_net4:
-                # Efficiency heatmap
-                st.markdown("**Lane Efficiency Matrix**")
-                
-                # Create pivot table for heatmap
-                lane_matrix = lanes_df.pivot_table(
-                    index='Origin', 
-                    columns='Destination', 
-                    values='Volume', 
-                    fill_value=0
-                )
-                
-                fig = px.imshow(lane_matrix,
-                               labels=dict(x="Destination", y="Origin", color="Shipments"),
-                               title="Origin-Destination Volume Heatmap",
-                               color_continuous_scale='YlOrRd',
-                               aspect='auto',
-                               text_auto=True)
-                fig.update_layout(height=600)
-                st.plotly_chart(fig, use_container_width=True)
-            
-            # Key trade lanes (existing code continues)
+            # Key trade lanes
             st.markdown('<p class="chart-title">Major Trade Corridors</p>', unsafe_allow_html=True)
             
             # Based on visible data, create top lanes
@@ -1685,10 +1475,10 @@ if tms_data is not None:
                 {'Lane': 'IT → NL', 'Volume': 2, 'Type': 'Intra-EU'}
             ]
             
-            lanes_summary_df = pd.DataFrame(major_lanes)
-            lanes_summary_df = lanes_summary_df.sort_values('Volume', ascending=False)
+            lanes_df = pd.DataFrame(major_lanes)
+            lanes_df = lanes_df.sort_values('Volume', ascending=False)
             
-            fig = px.bar(lanes_summary_df, x='Lane', y='Volume',
+            fig = px.bar(lanes_df, x='Lane', y='Volume',
                        color='Type',
                        title='Top 10 Trade Lanes by Volume',
                        color_discrete_map={'Intra-EU': '#3182bd', 
@@ -1696,6 +1486,113 @@ if tms_data is not None:
                                          'Intercontinental': '#de2d26'})
             fig.update_layout(xaxis_tickangle=-45, height=400)
             st.plotly_chart(fig, use_container_width=True)
+            
+            # NEW COMPREHENSIVE LANE MATRIX VISUALIZATION
+            st.markdown('<p class="chart-title">Complete Lane Network Matrix</p>', unsafe_allow_html=True)
+            
+            # Create comprehensive lane matrix data
+            all_countries = ['NL', 'FR', 'DE', 'IT', 'BE', 'GB', 'AT', 'US', 'ES', 'DK', 'SE', 'AU', 'NZ', 'CH', 'PL', 'FI', 'HK', 'N1']
+            
+            # Build the complete matrix based on known lane volumes
+            lane_matrix = {
+                'NL': {'NL': 8, 'IT': 12, 'BE': 3, 'DE': 7, 'US': 6, 'FR': 11, 'GB': 2, 'AT': 1, 'AU': 1, 'ES': 1},
+                'FR': {'NL': 6, 'IT': 1, 'FR': 1},
+                'DE': {'NL': 14, 'FR': 2, 'IT': 1},
+                'IT': {'NL': 2, 'FR': 4, 'GB': 3, 'IT': 3},
+                'BE': {'NL': 4, 'DE': 2, 'FR': 1, 'IT': 1},
+                'GB': {'NL': 2, 'FR': 1, 'IT': 1},
+                'AT': {'DE': 2, 'NL': 1, 'IT': 1},
+                'DK': {'NL': 1, 'SE': 1, 'DE': 1},
+                'PL': {'DE': 2, 'NL': 1, 'IT': 1},
+                'CH': {'IT': 2, 'DE': 1, 'FR': 1},
+                'US': {'US': 2},
+                'AU': {'NZ': 1, 'AU': 1},
+                'NZ': {'AU': 1}
+            }
+            
+            # Create matrix dataframe for heatmap
+            matrix_data = []
+            for origin in all_countries:
+                row_data = []
+                for dest in all_countries:
+                    if origin in lane_matrix and dest in lane_matrix[origin]:
+                        row_data.append(lane_matrix[origin][dest])
+                    else:
+                        row_data.append(0)
+                matrix_data.append(row_data)
+            
+            matrix_df = pd.DataFrame(matrix_data, index=all_countries, columns=all_countries)
+            
+            # Create interactive heatmap
+            fig = go.Figure(data=go.Heatmap(
+                z=matrix_df.values,
+                x=matrix_df.columns,
+                y=matrix_df.index,
+                colorscale='YlOrRd',
+                text=matrix_df.values,
+                texttemplate='%{text}',
+                textfont={"size": 10},
+                hoverongaps=False,
+                hovertemplate='%{y} → %{x}: %{z} shipments<extra></extra>'
+            ))
+            
+            fig.update_layout(
+                title='',
+                xaxis_title='Destination Country',
+                yaxis_title='Origin Country',
+                height=600,
+                xaxis={'side': 'bottom'},
+                yaxis={'side': 'left'}
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Lane density analysis
+            st.markdown('<p class="chart-title">Lane Volume Distribution Analysis</p>', unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Create lane volume distribution
+                all_lane_volumes = []
+                for origin in lane_matrix:
+                    for dest, vol in lane_matrix[origin].items():
+                        if vol > 0:
+                            all_lane_volumes.append(vol)
+                
+                volume_bins = pd.cut(all_lane_volumes, bins=[0, 1, 3, 5, 10, 20], 
+                                   labels=['1 shipment', '2-3 shipments', '4-5 shipments', '6-10 shipments', '11+ shipments'])
+                volume_dist = volume_bins.value_counts().sort_index()
+                
+                fig = px.bar(x=volume_dist.index, y=volume_dist.values,
+                           title='Lane Volume Distribution',
+                           labels={'x': 'Volume Range', 'y': 'Number of Lanes'},
+                           color=volume_dist.values,
+                           color_continuous_scale='Viridis')
+                fig.update_layout(showlegend=False, height=350)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                # Create geographic reach analysis
+                origins_per_dest = {}
+                for dest in all_countries:
+                    count = 0
+                    for origin in lane_matrix:
+                        if dest in lane_matrix[origin] and lane_matrix[origin][dest] > 0:
+                            count += 1
+                    if count > 0:
+                        origins_per_dest[dest] = count
+                
+                reach_data = pd.DataFrame(list(origins_per_dest.items()), 
+                                        columns=['Country', 'Incoming Routes'])
+                reach_data = reach_data.sort_values('Incoming Routes', ascending=False)
+                
+                fig = px.bar(reach_data.head(10), x='Country', y='Incoming Routes',
+                           title='Network Connectivity (Top 10)',
+                           color='Incoming Routes',
+                           color_continuous_scale='Teal')
+                fig.update_layout(showlegend=False, height=350)
+                st.plotly_chart(fig, use_container_width=True)
             
             # Network statistics
             total_network_volume = 126  # From the Excel grand total
@@ -1713,7 +1610,7 @@ if tms_data is not None:
             with col3:
                 st.metric("Average per Lane", f"{avg_per_lane:.1f}", "shipments")
         
-        # Network Insights with business meaning (keeping existing text)
+        # Network Insights with business meaning
         st.markdown('<div class="insight-box">', unsafe_allow_html=True)
         st.markdown("### 🛣️ Understanding the Network Structure")
         st.markdown(f"""
