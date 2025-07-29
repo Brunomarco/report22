@@ -924,221 +924,87 @@ with tab5:
       st.metric("Average per Lane", f"{avg_per_lane:.1f}", "shipments")
 
  
- # TAB 6: Executive Report
- with tab6:
+# TAB 6: Executive Report
+with tab6:
   st.markdown('<h2 class="section-header">Executive Summary Report</h2>', unsafe_allow_html=True)
-  
+
   # Report Header
   st.markdown(f"**Report Date**: {datetime.now().strftime('%B %d, %Y')}")
   st.markdown(f"**Reporting Period**: Based on uploaded TMS data")
   st.markdown("**Prepared for**: LFS Amsterdam Management Team")
-  
-  # Executive Summary
+
+  # Executive Overview
   st.markdown('<div class="report-section">', unsafe_allow_html=True)
-  st.markdown("## 1. Executive Summary")
-  
-  performance_status = "Meeting Targets" if avg_otp >= 95 and profit_margin >= 20 else "Below Targets"
-  
+  st.markdown("## 1. Overview of Key Metrics")
+
   st.markdown(f"""
-  LFS Amsterdam operates a **{performance_status}** logistics network processing **{total_services} shipments** 
-  across **{len(COUNTRIES)} countries**. The operation centers on Amsterdam as the primary hub, handling 
-  **37.6% of total volume** with strong connections throughout Europe and selective global reach.
-  
-  **Key Performance Indicators:**
-  - **On-Time Performance**: {avg_otp:.1f}% (Target: 95%) - {'✅ Exceeding' if avg_otp >= 95 else '⚠️ Below'} target
-  - **Profit Margin**: {profit_margin:.1f}% (Target: 20%) - {'✅ Healthy' if profit_margin >= 20 else '⚠️ Needs improvement'}
-  - **Revenue per Shipment**: €{total_revenue/total_services:.2f}
-  - **Network Utilization**: {active_lanes} active lanes connecting major markets
-  
-  The business shows {'strong operational and financial health' if performance_status == "Meeting Targets" 
-  else 'opportunities for operational and financial improvement'} with clear growth potential.
+  - Total Shipments: **{total_services}**
+  - Countries Served: **{len(COUNTRIES)}**
+  - On-Time Performance (OTP): **{avg_otp:.1f}%**
+  - Profit Margin: **{profit_margin:.1f}%**
+  - Total Revenue: **€{total_revenue:,.0f}**
+  - Total Cost: **€{total_cost:,.0f}**
+  - Profit: **€{(total_revenue - total_cost):,.0f}**
+  - Average Revenue per Shipment: **€{total_revenue/total_services:.2f}**
   """)
   st.markdown('</div>', unsafe_allow_html=True)
-  
+
   # Service Performance
   st.markdown('<div class="report-section">', unsafe_allow_html=True)
   st.markdown("## 2. Service Portfolio Analysis")
-  
+
   if 'service_volumes' in tms_data:
-   top_services = sorted([(k, v) for k, v in tms_data['service_volumes'].items() if v > 0], 
-                       key=lambda x: x[1], reverse=True)[:3]
-   
-   st.markdown(f"""
-   **Service Mix Interpretation:**
-   
-   The service portfolio reflects a balanced operation between speed and cost-efficiency:
-   
-   1. **{top_services[0][0]} Service** ({top_services[0][1]} shipments, {top_services[0][1]/total_services*100:.1f}%):
-   - {'Express service catering to time-sensitive deliveries' if top_services[0][0] == 'CX' else 'Core service type'}
-   - Drives {'premium revenue' if top_services[0][0] in ['CX', 'EF'] else 'volume-based revenue'}
-   
-   2. **{top_services[1][0]} Service** ({top_services[1][1]} shipments, {top_services[1][1]/total_services*100:.1f}%):
-   - {'Standard/routine deliveries forming operational backbone' if top_services[1][0] == 'ROU' else 'Specialized service'}
-   - Provides {'steady cash flow' if top_services[1][0] == 'ROU' else 'differentiation'}
-   
-   3. **{top_services[2][0]} Service** ({top_services[2][1]} shipments, {top_services[2][1]/total_services*100:.1f}%):
-   - Complementary service maintaining customer options
-   
-   **Strategic Assessment**: 
-   - No single service exceeds 30% of volume, indicating healthy diversification
-   - Mix of express and standard services provides pricing flexibility
-   - Zero volume in SF service suggests either new launch or discontinuation candidate
-   """)
+    service_data = pd.DataFrame(list(tms_data['service_volumes'].items()), columns=['Service', 'Volume'])
+    service_data = service_data.sort_values('Volume', ascending=False)
+
+    st.dataframe(service_data, use_container_width=True)
+
+    fig = px.bar(service_data, x='Service', y='Volume', title="Service Volumes", color='Volume', color_continuous_scale='Blues')
+    st.plotly_chart(fig, use_container_width=True)
   st.markdown('</div>', unsafe_allow_html=True)
-  
-  # Geographic Analysis
+
+  # Geographic Overview
   st.markdown('<div class="report-section">', unsafe_allow_html=True)
-  st.markdown("## 3. Geographic Strategy Evaluation")
-  
-  st.markdown(f"""
-  **Market Position Analysis:**
-  
-  LFS Amsterdam operates a classic hub-and-spoke model with clear geographic priorities:
-  
-  **Core Markets** (>10 shipments):
-  - Netherlands (47) - Hub operations and domestic distribution
-  - France (17) - Strong Western Europe presence  
-  - Italy (12) - Southern Europe gateway
-  - United Kingdom (10) - Post-Brexit maintained connections
-  
-  **Growth Markets** (5-10 shipments):
-  - Germany (9) - Surprisingly low for major economy, growth opportunity
-  - Belgium (8) - Neighboring country with expansion potential
-  - United States (8) - Transatlantic foothold established
-  
-  **Entry Markets** (<5 shipments):
-  - Nordic (DK: 1, SE: 1) - Minimal presence, consider strategic approach
-  - Iberia (ES: 1) - Underserved market with potential
-  - Asia-Pacific (AU: 3, NZ: 3) - Long-haul specialist services
-  
-  **Key Insight**: European operations generate ~85% of volume, providing stable base 
-  while limiting exposure to intercontinental risks.
-  """)
+  st.markdown("## 3. Geographic Distribution")
+
+  if 'PU_Country' in tms_data['cost_sales'].columns:
+    geo_data = tms_data['cost_sales'].groupby('PU_Country').size().reset_index(name='Shipments')
+    geo_data = geo_data.sort_values('Shipments', ascending=False)
+
+    st.dataframe(geo_data, use_container_width=True)
+
+    fig = px.bar(geo_data, x='PU_Country', y='Shipments', title="Shipments by Country", color='Shipments', color_continuous_scale='Greens')
+    st.plotly_chart(fig, use_container_width=True)
   st.markdown('</div>', unsafe_allow_html=True)
-  
-  # OTP Analysis
+
+  # OTP Distribution
   st.markdown('<div class="report-section">', unsafe_allow_html=True)
-  st.markdown("## 4. Operational Performance Review")
-  
-  st.markdown(f"""
-  **On-Time Performance Analysis**:
-  
-  Current OTP of {avg_otp:.1f}% translates to real customer impact:
-  - **Reliable deliveries**: {int(avg_otp/100 * total_orders)} customers received shipments as promised
-  - **Service failures**: {total_orders - int(avg_otp/100 * total_orders)} customers experienced delays
-  - **Industry position**: {'Above' if avg_otp >= 95 else 'Below'} the 95% standard by {abs(95-avg_otp):.1f}%
-  
-  **Root Cause Breakdown**:
-  1. **Customer-driven delays** (≈60% of issues):
-  - Last-minute changes disrupt planning
-  - Shipments not ready at scheduled pickup
-  - Indicates need for better customer communication
-  
-  2. **System errors** (≈25% of issues):
-  - QDT calculation problems create false expectations
-  - Technical fix could eliminate quarter of all delays
-  
-  3. **Delivery execution** (≈15% of issues):
-  - Driver waiting time at delivery points
-  - Last-mile optimization opportunity
-  
-  **Financial Impact**: Each 1% OTP improvement = {total_orders/100:.0f} more satisfied customers, 
-  reducing complaint handling costs and protecting revenue.
-  """)
+  st.markdown("## 4. On-Time Performance (OTP)")
+
+  st.metric("Average OTP (%)", f"{avg_otp:.1f}")
+
+  if 'OTP' in tms_data['cost_sales'].columns:
+    otp_data = tms_data['cost_sales']['OTP'].dropna()
+    fig = px.histogram(otp_data, nbins=20, title="OTP Distribution")
+    st.plotly_chart(fig, use_container_width=True)
   st.markdown('</div>', unsafe_allow_html=True)
-  
-  # Financial Summary
+
+  # Financial Overview
   st.markdown('<div class="report-section">', unsafe_allow_html=True)
-  st.markdown("## 5. Financial Performance Deep Dive")
-  
-  st.markdown(f"""
-  **Financial Health Indicators**:
-  
-  The operation generates €{total_revenue:,.0f} revenue with {profit_margin:.1f}% margins, meaning:
-  - **Per shipment economics**: Revenue €{total_revenue/total_services:.2f}, Cost €{total_cost/total_services:.2f}, Profit €{(total_revenue-total_cost)/total_services:.2f}
-  - **Margin quality**: {'Healthy margins support growth investment' if profit_margin >= 20 else f'Need {20-profit_margin:.1f}% improvement to reach sustainability target'}
-  - **Cash generation**: €{(total_revenue-total_cost):,.0f} available for reinvestment
-  
-  **Cost Structure Insights**:
-  - First-mile (pickup) and main haul (shipping) dominate costs
-  - Manual handling costs suggest automation opportunity
-  - Last-mile delivery efficiency varies significantly by country
-  
-  **Country Profitability Patterns**:
-  - High-volume doesn't guarantee profitability (check margins carefully)
-  - Some small-volume countries show strong margins (pricing power)
-  - Loss-making routes require immediate attention or exit strategy
-  
-  **Pricing Strategy Implications**:
-  - Premium services (CX, EF) should maintain higher margins
-  - Volume discounts on ROU service must preserve minimum margins
-  - Country-specific pricing needed based on local cost structures
-  """)
-  st.markdown('</div>', unsafe_allow_html=True)
-  
-  # Recommendations
-  st.markdown('<div class="report-section">', unsafe_allow_html=True)
-  st.markdown("## 6. Strategic Recommendations")
-  
-  st.markdown(f"""
-  Based on comprehensive analysis, we recommend:
-  
-  **Immediate Actions** (Next 30 days):
-  1. {'Maintain OTP excellence' if avg_otp >= 95 else f'Launch OTP improvement program targeting {95-avg_otp:.1f}% gain'}
-  2. {'Protect strong margins' if profit_margin >= 20 else 'Implement pricing review for loss-making countries'}
-  3. Fix MNX-QDT calculation system to reduce system-caused delays
-  4. Review and potentially exit chronically unprofitable routes
-  
-  **Short-term Initiatives** (Next Quarter):
-  1. Develop German market - too small for economic size
-  2. Implement customer portal for delivery parameter management
-  3. Automate manual handling processes to reduce costs
-  4. Strengthen IT-NL-DE-FR corridor with dedicated capacity
-  
-  **Strategic Priorities** (Next Year):
-  1. Evaluate secondary hub in Southern Europe (Milan/Lyon)
-  2. Develop direct inter-country routes bypassing Amsterdam
-  3. Expand service portfolio in high-margin countries
-  4. Build predictive analytics for demand planning
-  5. Consider acquisition to quickly scale in underserved markets
-  
-  **Investment Requirements**:
-  - Technology: €X for system upgrades and customer portal
-  - Infrastructure: €Y for automation and hub expansion
-  - Market development: €Z for sales and marketing in target countries
-  """)
-  st.markdown('</div>', unsafe_allow_html=True)
-  
-  # Conclusion
-  st.markdown('<div class="report-section">', unsafe_allow_html=True)
-  st.markdown("## 7. Conclusion and Next Steps")
-  
-  st.markdown(f"""
-  LFS Amsterdam operates a {'well-functioning' if performance_status == "Meeting Targets" else 'developing'} 
-  logistics network with strong European presence and selective global reach. The Amsterdam hub strategy 
-  provides operational efficiency while creating some concentration risk.
-  
-  **Key Success Factors**:
-  - Strong hub infrastructure in Amsterdam
-  - Diversified service portfolio
-  - Established European network
-  - {'Reliable service delivery' if avg_otp >= 95 else 'Improving service reliability'}
-  - {'Healthy financial position' if profit_margin >= 20 else 'Strengthening financial position'}
-  
-  **Critical Watch Points**:
-  - Customer-driven delays impacting OTP
-  - Margin pressure in competitive markets
-  - Limited presence in key markets (DE, ES)
-  - Hub dependency risk in Amsterdam
-  
-  **Next Steps**:
-  1. Present findings to management team
-  2. Prioritize recommendations based on impact/effort
-  3. Develop detailed implementation plans
-  4. Set up monthly KPI tracking dashboard
-  5. Schedule quarterly business reviews
-  
-  This analysis provides clear direction for optimizing operations, improving profitability, 
-  and positioning LFS Amsterdam for sustainable growth in the competitive logistics market.
-  """)
+  st.markdown("## 5. Financial Overview")
+
+  financial_summary = pd.DataFrame({
+    'Metric': ['Revenue (€)', 'Cost (€)', 'Profit (€)', 'Profit Margin (%)'],
+    'Value': [total_revenue, total_cost, total_revenue - total_cost, profit_margin]
+  })
+
+  st.dataframe(financial_summary, use_container_width=True)
+
+  if 'Invoice_Date' in tms_data['cost_sales'].columns:
+    cost_df = tms_data['cost_sales']
+    cost_df['Month'] = cost_df['Invoice_Date'].dt.to_period('M').astype(str)
+    monthly = cost_df.groupby('Month').agg({'Net_Revenue': 'sum', 'Total_Cost': 'sum', 'Diff': 'sum'}).reset_index()
+
+    fig = px.line(monthly, x='Month', y=['Net_Revenue', 'Total_Cost', 'Diff'], title="Monthly Financial Trends")
+    st.plotly_chart(fig, use_container_width=True)
   st.markdown('</div>', unsafe_allow_html=True)
