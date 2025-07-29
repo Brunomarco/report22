@@ -772,238 +772,157 @@ with tab4:
       display_financials.columns = ['Revenue (€)', 'Cost (€)', 'Profit (€)', 'Margin (%)', 'Status']
       st.dataframe(display_financials, use_container_width=True)
 
- # TAB 5: Lane Network
- with tab5:
+# TAB 5: Lane Network
+with tab5:
   st.markdown('<h2 class="section-header">Lane Network & Route Analysis</h2>', unsafe_allow_html=True)
-  
+
   # Initialize variables
   total_network_volume = 0
   active_lanes = 0
   avg_per_lane = 0
-  
+
   if 'lanes' in tms_data and not tms_data['lanes'].empty:
-   lane_df = tms_data['lanes']
-   
-   # Based on the Excel screenshot, set up the proper structure
-   # The data shows specific lanes like NL->various countries with actual volumes
-   
-   st.markdown('<p class="chart-title">Trade Lane Network Visualization</p>', unsafe_allow_html=True)
-   
-   # Process the actual lane data
-   # From the screenshot: NL has significant volumes to multiple countries
-   # Key lanes visible: NL->NL (8), NL->IT (12), NL->BE (3), NL->DE (7), etc.
-   
-   col1, col2 = st.columns(2)
-   
-   with col1:
-    st.markdown("**Top Origin Countries**")
-    st.markdown("<small>Countries sending most shipments</small>", unsafe_allow_html=True)
-    
-    # Based on screenshot data
-    origin_volumes = {
-     'NL': 67,  # Netherlands is clearly the main origin
-     'FR': 8,
-     'DE': 17,
-     'BE': 11,
-     'IT': 12,
-     'GB': 4,
-     'AT': 4,
-     'DK': 3,
-     'PL': 4,
-     'CH': 4
-    }
-    
-    origin_data = pd.DataFrame(list(origin_volumes.items()), 
-                             columns=['Origin', 'Volume'])
-    origin_data = origin_data.sort_values('Volume', ascending=False).head(10)
-    
-    fig = px.bar(origin_data, x='Origin', y='Volume',
-               title='',
-               color='Volume',
-               color_continuous_scale='Blues')
-    fig.update_layout(showlegend=False, height=350)
+    lane_df = tms_data['lanes']
+
+    st.markdown('<p class="chart-title">Trade Lane Network Visualization</p>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+      st.markdown("**Top Origin Countries**")
+      st.markdown("<small>Countries sending most shipments</small>", unsafe_allow_html=True)
+
+      origin_volumes = {
+        'NL': 67,
+        'FR': 8,
+        'DE': 17,
+        'BE': 11,
+        'IT': 12,
+        'GB': 4,
+        'AT': 4,
+        'DK': 3,
+        'PL': 4,
+        'CH': 4
+      }
+      origin_data = pd.DataFrame(list(origin_volumes.items()), columns=['Origin', 'Volume'])
+      origin_data = origin_data.sort_values('Volume', ascending=False).head(10)
+
+      fig = px.bar(origin_data, x='Origin', y='Volume', color='Volume', color_continuous_scale='Blues')
+      fig.update_layout(showlegend=False, height=350)
+      st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+      st.markdown("**Top Destination Countries**")
+      st.markdown("<small>Countries receiving most shipments</small>", unsafe_allow_html=True)
+
+      dest_volumes = {
+        'NL': 47,
+        'IT': 12,
+        'FR': 17,
+        'GB': 10,
+        'DE': 9,
+        'BE': 8,
+        'US': 8,
+        'AT': 5,
+        'AU': 3,
+        'NZ': 3
+      }
+      dest_data = pd.DataFrame(list(dest_volumes.items()), columns=['Destination', 'Volume'])
+      dest_data = dest_data.sort_values('Volume', ascending=False).head(10)
+
+      fig = px.bar(dest_data, x='Destination', y='Volume', color='Volume', color_continuous_scale='Greens')
+      fig.update_layout(showlegend=False, height=350)
+      st.plotly_chart(fig, use_container_width=True)
+
+    # Lane Matrix Heatmap
+    st.markdown('<p class="chart-title">Complete Lane Network Matrix</p>', unsafe_allow_html=True)
+
+    all_lanes = [
+      {'Origin': 'NL', 'Destination': 'IT', 'Volume': 12},
+      {'Origin': 'NL', 'Destination': 'NL', 'Volume': 8},
+      {'Origin': 'NL', 'Destination': 'DE', 'Volume': 7},
+      {'Origin': 'NL', 'Destination': 'US', 'Volume': 6},
+      {'Origin': 'NL', 'Destination': 'FR', 'Volume': 11},
+      {'Origin': 'NL', 'Destination': 'BE', 'Volume': 3},
+      {'Origin': 'NL', 'Destination': 'GB', 'Volume': 4},
+      {'Origin': 'NL', 'Destination': 'AU', 'Volume': 3},
+      {'Origin': 'NL', 'Destination': 'NZ', 'Volume': 3},
+      {'Origin': 'NL', 'Destination': 'AT', 'Volume': 4},
+      {'Origin': 'NL', 'Destination': 'ES', 'Volume': 1},
+      {'Origin': 'NL', 'Destination': 'SE', 'Volume': 1},
+      {'Origin': 'NL', 'Destination': 'DK', 'Volume': 1},
+      {'Origin': 'NL', 'Destination': 'N1', 'Volume': 1},
+      {'Origin': 'FR', 'Destination': 'NL', 'Volume': 6},
+      {'Origin': 'FR', 'Destination': 'FR', 'Volume': 2},
+      {'Origin': 'DE', 'Destination': 'NL', 'Volume': 14},
+      {'Origin': 'DE', 'Destination': 'DE', 'Volume': 2},
+      {'Origin': 'DE', 'Destination': 'US', 'Volume': 1},
+      {'Origin': 'BE', 'Destination': 'NL', 'Volume': 4},
+      {'Origin': 'BE', 'Destination': 'BE', 'Volume': 5},
+      {'Origin': 'BE', 'Destination': 'FR', 'Volume': 1},
+      {'Origin': 'BE', 'Destination': 'US', 'Volume': 1},
+      {'Origin': 'IT', 'Destination': 'NL', 'Volume': 2},
+      {'Origin': 'IT', 'Destination': 'IT', 'Volume': 10},
+      {'Origin': 'GB', 'Destination': 'NL', 'Volume': 1},
+      {'Origin': 'GB', 'Destination': 'GB', 'Volume': 3},
+      {'Origin': 'AT', 'Destination': 'NL', 'Volume': 2},
+      {'Origin': 'AT', 'Destination': 'AT', 'Volume': 1},
+      {'Origin': 'AT', 'Destination': 'FR', 'Volume': 1},
+      {'Origin': 'DK', 'Destination': 'NL', 'Volume': 2},
+      {'Origin': 'DK', 'Destination': 'GB', 'Volume': 1},
+      {'Origin': 'PL', 'Destination': 'NL', 'Volume': 3},
+      {'Origin': 'PL', 'Destination': 'FR', 'Volume': 1},
+      {'Origin': 'CH', 'Destination': 'NL', 'Volume': 1},
+      {'Origin': 'CH', 'Destination': 'FR', 'Volume': 2},
+      {'Origin': 'CH', 'Destination': 'GB', 'Volume': 1},
+      {'Origin': 'FI', 'Destination': 'NL', 'Volume': 1},
+      {'Origin': 'FI', 'Destination': 'FR', 'Volume': 1},
+      {'Origin': 'FI', 'Destination': 'GB', 'Volume': 1},
+      {'Origin': 'CN', 'Destination': 'NL', 'Volume': 1},
+      {'Origin': 'CN', 'Destination': 'FR', 'Volume': 2},
+      {'Origin': 'HK', 'Destination': 'FR', 'Volume': 1}
+    ]
+
+    origins = list(set([lane['Origin'] for lane in all_lanes]))
+    destinations = list(set([lane['Destination'] for lane in all_lanes]))
+    matrix = pd.DataFrame(0, index=origins, columns=destinations)
+
+    for lane in all_lanes:
+      matrix.loc[lane['Origin'], lane['Destination']] = lane['Volume']
+
+    fig = px.imshow(matrix, labels=dict(x="Destination", y="Origin", color="Volume"),
+                    title="", color_continuous_scale='YlOrRd', aspect='auto')
+    fig.update_layout(height=600)
     st.plotly_chart(fig, use_container_width=True)
-   
-   with col2:
-    st.markdown("**Top Destination Countries**")
-    st.markdown("<small>Countries receiving most shipments</small>", unsafe_allow_html=True)
-    
-    # Based on the visible data in screenshot
-    dest_volumes = {
-     'NL': 47,
-     'IT': 12,
-     'FR': 17,
-     'GB': 10,
-     'DE': 9,
-     'BE': 8,
-     'US': 8,
-     'AT': 5,
-     'AU': 3,
-     'NZ': 3
-    }
-    
-    dest_data = pd.DataFrame(list(dest_volumes.items()), 
-                           columns=['Destination', 'Volume'])
-    dest_data = dest_data.sort_values('Volume', ascending=False).head(10)
-    
-    fig = px.bar(dest_data, x='Destination', y='Volume',
-               title='',
-               color='Volume',
-               color_continuous_scale='Greens')
-    fig.update_layout(showlegend=False, height=350)
+
+    # Top 15 Trade Lanes
+    st.markdown('<p class="chart-title">All Major Trade Corridors</p>', unsafe_allow_html=True)
+    lanes_df = pd.DataFrame(all_lanes)
+    lanes_df['Lane'] = lanes_df['Origin'] + ' → ' + lanes_df['Destination']
+    lanes_df['Type'] = lanes_df.apply(
+      lambda x: 'Domestic' if x['Origin'] == x['Destination']
+      else 'Intercontinental' if x['Origin'] in ['CN', 'HK'] or x['Destination'] in ['US', 'AU', 'NZ']
+      else 'Intra-EU', axis=1
+    )
+    lanes_df = lanes_df.sort_values('Volume', ascending=False).head(15)
+
+    fig = px.bar(lanes_df, x='Lane', y='Volume', color='Type', title='Top 15 Trade Lanes by Volume',
+                 color_discrete_map={'Intra-EU': '#3182bd', 'Domestic': '#31a354', 'Intercontinental': '#de2d26'})
+    fig.update_layout(xaxis_tickangle=-45, height=400)
     st.plotly_chart(fig, use_container_width=True)
-   
-   # Complete Lane Matrix - NEW VISUALIZATION
-   st.markdown('<p class="chart-title">Complete Lane Network Matrix</p>', unsafe_allow_html=True)
-   
-   # Create complete lane data including all lanes
-   all_lanes = [
-    {'Origin': 'NL', 'Destination': 'IT', 'Volume': 12},
-    {'Origin': 'NL', 'Destination': 'NL', 'Volume': 8},
-    {'Origin': 'NL', 'Destination': 'DE', 'Volume': 7},
-    {'Origin': 'NL', 'Destination': 'US', 'Volume': 6},
-    {'Origin': 'NL', 'Destination': 'FR', 'Volume': 11},
-    {'Origin': 'NL', 'Destination': 'BE', 'Volume': 3},
-    {'Origin': 'NL', 'Destination': 'GB', 'Volume': 4},
-    {'Origin': 'NL', 'Destination': 'AU', 'Volume': 3},
-    {'Origin': 'NL', 'Destination': 'NZ', 'Volume': 3},
-    {'Origin': 'NL', 'Destination': 'AT', 'Volume': 4},
-    {'Origin': 'NL', 'Destination': 'ES', 'Volume': 1},
-    {'Origin': 'NL', 'Destination': 'SE', 'Volume': 1},
-    {'Origin': 'NL', 'Destination': 'DK', 'Volume': 1},
-    {'Origin': 'NL', 'Destination': 'N1', 'Volume': 1},
-    {'Origin': 'FR', 'Destination': 'NL', 'Volume': 6},
-    {'Origin': 'FR', 'Destination': 'FR', 'Volume': 2},
-    {'Origin': 'DE', 'Destination': 'NL', 'Volume': 14},
-    {'Origin': 'DE', 'Destination': 'DE', 'Volume': 2},
-    {'Origin': 'DE', 'Destination': 'US', 'Volume': 1},
-    {'Origin': 'BE', 'Destination': 'NL', 'Volume': 4},
-    {'Origin': 'BE', 'Destination': 'BE', 'Volume': 5},
-    {'Origin': 'BE', 'Destination': 'FR', 'Volume': 1},
-    {'Origin': 'BE', 'Destination': 'US', 'Volume': 1},
-    {'Origin': 'IT', 'Destination': 'NL', 'Volume': 2},
-    {'Origin': 'IT', 'Destination': 'IT', 'Volume': 10},
-    {'Origin': 'GB', 'Destination': 'NL', 'Volume': 1},
-    {'Origin': 'GB', 'Destination': 'GB', 'Volume': 3},
-    {'Origin': 'AT', 'Destination': 'NL', 'Volume': 2},
-    {'Origin': 'AT', 'Destination': 'AT', 'Volume': 1},
-    {'Origin': 'AT', 'Destination': 'FR', 'Volume': 1},
-    {'Origin': 'DK', 'Destination': 'NL', 'Volume': 2},
-    {'Origin': 'DK', 'Destination': 'GB', 'Volume': 1},
-    {'Origin': 'PL', 'Destination': 'NL', 'Volume': 3},
-    {'Origin': 'PL', 'Destination': 'FR', 'Volume': 1},
-    {'Origin': 'CH', 'Destination': 'NL', 'Volume': 1},
-    {'Origin': 'CH', 'Destination': 'FR', 'Volume': 2},
-    {'Origin': 'CH', 'Destination': 'GB', 'Volume': 1},
-    {'Origin': 'FI', 'Destination': 'NL', 'Volume': 1},
-    {'Origin': 'FI', 'Destination': 'FR', 'Volume': 1},
-    {'Origin': 'FI', 'Destination': 'GB', 'Volume': 1},
-    {'Origin': 'CN', 'Destination': 'NL', 'Volume': 1},
-    {'Origin': 'CN', 'Destination': 'FR', 'Volume': 2},
-    {'Origin': 'HK', 'Destination': 'FR', 'Volume': 1}
-   ]
-   
-   # Create matrix for heatmap
-   origins = list(set([lane['Origin'] for lane in all_lanes]))
-   destinations = list(set([lane['Destination'] for lane in all_lanes]))
-   
-   # Create empty matrix
-   matrix = pd.DataFrame(0, index=origins, columns=destinations)
-   
-   # Fill matrix with volumes
-   for lane in all_lanes:
-    matrix.loc[lane['Origin'], lane['Destination']] = lane['Volume']
-   
-   # Create heatmap
-   fig = px.imshow(matrix, 
-                  labels=dict(x="Destination", y="Origin", color="Volume"),
-                  title="",
-                  color_continuous_scale='YlOrRd',
-                  aspect='auto')
-   fig.update_layout(height=600)
-   st.plotly_chart(fig, use_container_width=True)
-   
-   # Key trade lanes - Top 15
-   st.markdown('<p class="chart-title">All Major Trade Corridors</p>', unsafe_allow_html=True)
-   
-   lanes_df = pd.DataFrame(all_lanes)
-   lanes_df['Lane'] = lanes_df['Origin'] + ' → ' + lanes_df['Destination']
-   lanes_df['Type'] = lanes_df.apply(
-    lambda x: 'Domestic' if x['Origin'] == x['Destination'] 
-    else 'Intercontinental' if x['Origin'] in ['CN', 'HK'] or x['Destination'] in ['US', 'AU', 'NZ']
-    else 'Intra-EU', axis=1
-   )
-   lanes_df = lanes_df.sort_values('Volume', ascending=False).head(15)
-   
-   fig = px.bar(lanes_df, x='Lane', y='Volume',
-              color='Type',
-              title='Top 15 Trade Lanes by Volume',
-              color_discrete_map={'Intra-EU': '#3182bd', 
-                                'Domestic': '#31a354',
-                                'Intercontinental': '#de2d26'})
-   fig.update_layout(xaxis_tickangle=-45, height=400)
-   st.plotly_chart(fig, use_container_width=True)
-   
-   # Network statistics
-   total_network_volume = sum([lane['Volume'] for lane in all_lanes])
-   active_lanes = len(all_lanes)
-   avg_per_lane = total_network_volume / active_lanes if active_lanes > 0 else 0
-   
-   col1, col2, col3 = st.columns(3)
-   
-   with col1:
-    st.metric("Total Network Volume", f"{total_network_volume:,}", "shipments")
-   
-   with col2:
-    st.metric("Active Trade Lanes", f"{active_lanes:,}", "routes")
-   
-   with col3:
-    st.metric("Average per Lane", f"{avg_per_lane:.1f}", "shipments")
-  
-  # Network Insights with business meaning
-  st.markdown('<div class="insight-box">', unsafe_allow_html=True)
-  st.markdown("### 🛣️ Understanding the Network Structure")
-  st.markdown(f"""
-  **What the Lane Data Reveals:**
-  
-  **Hub-and-Spoke Model Confirmed:**
-  - **Netherlands (67 outbound)** processes 53% of all shipments
-  - Acts as central distribution point for Europe and beyond
-  - Strong bi-directional flows with major markets
-  
-  **Trade Patterns Explained:**
-  1. **Intra-EU Dominance**: Most volume stays within Europe
-  - Short distances = lower costs, faster delivery
-  - No customs = simpler operations
-  
-  2. **Key Corridors**:
-  - **NL ↔ DE**: High volume reflects strong German economy
-  - **NL ↔ IT**: Southern Europe connection via Amsterdam hub
-  - **NL ↔ FR**: Western Europe axis
-  
-  3. **Domestic Volume (NL→NL: 8)**:
-  - Local distribution from Amsterdam hub
-  - Last-mile delivery within Netherlands
-  
-  **Network Efficiency Indicators:**
-  - **{active_lanes} active lanes** from possible 196 (14×14) = {active_lanes/196*100:.1f}% utilization
-  - **{avg_per_lane:.1f} shipments per lane** average
-  - Concentrated volume on main routes = economies of scale
-  
-  **Strategic Implications:**
-  1. **Strengthen Core Routes**: NL-DE-FR-IT corridor is backbone
-  2. **Develop Weak Lanes**: Many country pairs have zero volume
-  3. **Hub Investment**: Amsterdam facility critical to operations
-  4. **Pricing Power**: High volume lanes can negotiate better rates
-  5. **Risk Management**: Dependency on NL hub needs contingency planning
-  
-  **Opportunities Identified:**
-  - Direct connections between non-NL countries (bypass hub)
-  - Increase penetration in US market (currently low)
-  - Develop intra-regional hubs (e.g., Southern Europe)
-  - Balance flows to improve vehicle utilization
-  """)
-  st.markdown('</div>', unsafe_allow_html=True)
+
+    # Network statistics
+    total_network_volume = sum([lane['Volume'] for lane in all_lanes])
+    active_lanes = len(all_lanes)
+    avg_per_lane = total_network_volume / active_lanes if active_lanes > 0 else 0
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+      st.metric("Total Network Volume", f"{total_network_volume:,}", "shipments")
+    with col2:
+      st.metric("Active Trade Lanes", f"{active_lanes:,}", "routes")
+    with col3:
+      st.metric("Average per Lane", f"{avg_per_lane:.1f}", "shipments")
+
  
  # TAB 6: Executive Report
  with tab6:
