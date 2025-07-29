@@ -743,8 +743,8 @@ if tms_data is not None:
         with col2:
           fig = px.line(quarterly, x='Quarter', y=['Net_Revenue', 'Total_Cost', 'Diff'], title="Quarterly Revenue, Cost & Profit")
           st.plotly_chart(fig, use_container_width=True)
-      else:
-        st.warning(f"No order date (ORD DT) found. Available columns: {list(cost_df.columns)}")
+        else:
+          st.warning(f"No order date (ORD DT) found. Available columns: {list(cost_df.columns)}")
 
       
         col1, col2 = st.columns(2)
