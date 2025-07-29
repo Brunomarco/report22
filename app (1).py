@@ -686,25 +686,26 @@ if tms_data is not None:
           st.plotly_chart(fig, use_container_width=True)
   
       # === PROFITABILITY BY ACCOUNT & SERVICE ===
-      if 'Account_Name' in cost_df.columns:
+      if 'Account_Name' in cost_df.columns and 'Diff' in cost_df.columns:
         st.markdown("### 📊 Profitability by Account")
         profit_by_account = cost_df.groupby('Account_Name')['Diff'].sum().reset_index()
         if not profit_by_account.empty:
+          profit_by_account = profit_by_account.sort_values('Diff', ascending=False)
           fig = px.bar(
-            profit_by_account.sort_values('Diff', ascending=False),
+            profit_by_account,
             x='Account_Name',
             y='Diff',
             color='Account_Name',
             title="Profitability by Account"
           )
           fig.update_layout(
-            height=500,
+            height=550,
             xaxis=dict(showticklabels=False),
-            legend=dict(orientation="h", yanchor="bottom", y=-0.4, xanchor="center", x=0.5)
+            legend=dict(orientation="h", yanchor="bottom", y=-0.5, xanchor="center", x=0.5)  # Legend lower
           )
           st.plotly_chart(fig, use_container_width=True)
         else:
-          st.info("No profitability data available for billed shipments.")
+          st.info("No profitability data available for billed shipments."))
   
       if 'Service' in cost_df.columns:
         st.markdown("### 📊 Profitability by Service")
