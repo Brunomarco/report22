@@ -714,33 +714,60 @@ if tms_data is not None:
         st.plotly_chart(fig, use_container_width=True)
   
       # === MONTHLY AND QUARTERLY ANALYSIS ===
-      if 'Invoice_Date' in cost_df.columns:
+      if 'ORD DT' in cost_df.columns:
         st.markdown("### 📅 Time-Based Financial Analysis")
-        cost_df['Month'] = cost_df['Invoice_Date'].dt.to_period('M').astype(str)
-        cost_df['Quarter'] = cost_df['Invoice_Date'].dt.to_period('Q').astype(str)
-  
-        monthly = cost_df.groupby('Month').agg({'Net_Revenue': 'sum', 'Total_Cost': 'sum', 'Diff': 'sum'}).reset_index()
-        quarterly = cost_df.groupby('Quarter').agg({'Net_Revenue': 'sum', 'Total_Cost': 'sum', 'Diff': 'sum'}).reset_index()
-  
+        
+        # Convert date
+        cost_df['ORD DT'] = pd.to_datetime(cost_df['ORD DT'], errors='coerce')
+        cost_df['Month'] = cost_df['ORD DT'].dt.to_period('M').astype(str)
+        cost_df['Quarter'] = cost_df['ORD DT'].dt.to_period('Q').astype(str)
+      
+        # Monthly and quarterly aggregates
+        monthly = cost_df.groupby('Month').agg({
+          'Net_Revenue': 'sum',
+          'Total_Cost': 'sum',
+          'Diff': 'sum'
+        }).reset_index()
+      
+        quarterly = cost_df.groupby('Quarter').agg({
+          'Net_Revenue': 'sum',
+          'Total_Cost': 'sum',
+          'Diff': 'sum'
+        }).reset_index()
+      
         col1, col2 = st.columns(2)
         with col1:
           fig = px.line(monthly, x='Month', y=['Net_Revenue', 'Total_Cost', 'Diff'], title="Monthly Revenue, Cost & Profit")
+          fig.update_layout(yaxis_tickformat=",")  # Comma for thousands
           st.plotly_chart(fig, use_container_width=True)
+      
         with col2:
           fig = px.line(quarterly, x='Quarter', y=['Net_Revenue', 'Total_Cost', 'Diff'], title="Quarterly Revenue, Cost & Profit")
+          fig.update_layout(yaxis_tickformat=",")
           st.plotly_chart(fig, use_container_width=True)
-  
+      
         # Cumulative Profit Trend
         st.markdown("**Cumulative Profit Over Time**")
         monthly['Cumulative_Profit'] = monthly['Diff'].cumsum()
         fig = px.line(monthly, x='Month', y='Cumulative_Profit', title="Cumulative Profit Trend")
+        fig.update_traces(line=dict(width=3))
+        fig.update_layout(yaxis_tickformat=",")
         st.plotly_chart(fig, use_container_width=True)
-  
+      
         # Revenue vs Cost Gap (Area)
         st.markdown("**Revenue vs Cost Gap**")
-        gap_data = monthly.melt(id_vars='Month', value_vars=['Net_Revenue', 'Total_Cost'], var_name='Type', value_name='Amount')
+        gap_data = monthly.melt(
+          id_vars='Month',
+          value_vars=['Net_Revenue', 'Total_Cost'],
+          var_name='Type',
+          value_name='Amount'
+        )
         fig = px.area(gap_data, x='Month', y='Amount', color='Type', title="Revenue vs Cost Over Time")
+        fig.update_layout(yaxis_tickformat=",")
         st.plotly_chart(fig, use_container_width=True)
+      else:
+        st.info("No order date (ORD DT) available for time-based financial analysis.")
+
   
       # === OUTLIER DETECTION ===
       if 'Diff' in cost_df.columns:
