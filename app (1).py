@@ -580,6 +580,7 @@ if tms_data is not None:
   """)
   st.markdown('</div>', unsafe_allow_html=True)
  
+# TAB 4: Financial Analysis
 with tab4:
   st.markdown('<h2 class="section-header">Financial Performance & Profitability</h2>', unsafe_allow_html=True)
 
@@ -770,7 +771,6 @@ with tab4:
       display_financials = display_financials[['Revenue', 'Cost', 'Profit', 'Margin_Percent', 'Status']]
       display_financials.columns = ['Revenue (€)', 'Cost (€)', 'Profit (€)', 'Margin (%)', 'Status']
       st.dataframe(display_financials, use_container_width=True)
-
 
  # TAB 5: Lane Network
  with tab5:
