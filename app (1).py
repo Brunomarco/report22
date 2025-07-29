@@ -653,20 +653,24 @@ if tms_data is not None:
       if 'Diff' in cost_df.columns and 'Account_Name' in cost_df.columns:
         st.markdown("### 🔻 Top 10 Loss-Making Accounts")
         loss_df = cost_df[cost_df['Diff'] < 0]
-        top_loss_accounts = loss_df.groupby('Account_Name')['Diff'].sum().nsmallest(10).reset_index()
-        
-        fig = px.bar(
-          top_loss_accounts,
-          x='Account_Name',
-          y='Diff',
-          color='Account_Name',
-          title="Top 10 Loss-Making Accounts"
-        )
-        fig.update_layout(
-          height=500,
-          legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)  # Legend below
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        if not loss_df.empty:
+          top_loss_accounts = loss_df.groupby('Account_Name')['Diff'].sum().nsmallest(10).reset_index()
+      
+          fig = px.bar(
+            top_loss_accounts,
+            x='Account_Name',
+            y='Diff',
+            color='Account_Name',
+            title="Top 10 Loss-Making Accounts"
+          )
+          fig.update_layout(
+            height=500,
+            xaxis=dict(showticklabels=False),  # Hide x-axis labels
+            legend=dict(orientation="h", yanchor="bottom", y=-0.4, xanchor="center", x=0.5)  # Push legend further down
+          )
+          st.plotly_chart(fig, use_container_width=True)
+        else:
+          st.info("No loss-making accounts found for billed shipments.")
   
         # Pareto chart for loss concentration
         st.markdown("**Loss Concentration (Pareto)**")
@@ -685,19 +689,22 @@ if tms_data is not None:
       if 'Account_Name' in cost_df.columns:
         st.markdown("### 📊 Profitability by Account")
         profit_by_account = cost_df.groupby('Account_Name')['Diff'].sum().reset_index()
-        
-        fig = px.bar(
-          profit_by_account.sort_values('Diff', ascending=False),
-          x='Account_Name',
-          y='Diff',
-          color='Account_Name',
-          title="Profitability by Account"
-        )
-        fig.update_layout(
-          height=500,
-          legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        if not profit_by_account.empty:
+          fig = px.bar(
+            profit_by_account.sort_values('Diff', ascending=False),
+            x='Account_Name',
+            y='Diff',
+            color='Account_Name',
+            title="Profitability by Account"
+          )
+          fig.update_layout(
+            height=500,
+            xaxis=dict(showticklabels=False),
+            legend=dict(orientation="h", yanchor="bottom", y=-0.4, xanchor="center", x=0.5)
+          )
+          st.plotly_chart(fig, use_container_width=True)
+        else:
+          st.info("No profitability data available for billed shipments.")
   
       if 'Service' in cost_df.columns:
         st.markdown("### 📊 Profitability by Service")
