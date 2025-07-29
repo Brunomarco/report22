@@ -253,333 +253,312 @@ if tms_data is not None:
     "📄 Executive Report"
   ])
  
- # TAB 1: Overview
- with tab1:
+# TAB 1: Overview
+with tab1:
   st.markdown('<h2 class="section-header">Executive Dashboard Overview</h2>', unsafe_allow_html=True)
-  
+
   # KPI Dashboard
   col1, col2, col3, col4 = st.columns(4)
-  
+
   with col1:
-   st.metric("📦 Total Volume", f"{int(total_services):,}", "shipments")
-  
+    st.metric("📦 Total Volume", f"{int(total_services):,}", "shipments")
+
   with col2:
-   st.metric("⏱️ OTP Rate", f"{avg_otp:.1f}%", f"{avg_otp-95:.1f}% vs target")
-  
+    st.metric("⏱️ OTP Rate", f"{avg_otp:.1f}%", f"{avg_otp-95:.1f}% vs target")
+
   with col3:
-   st.metric("💰 Revenue", f"€{total_revenue:,.0f}", "total")
-  
+    st.metric("💰 Revenue", f"€{total_revenue:,.0f}", "total")
+
   with col4:
-   st.metric("📈 Margin", f"{profit_margin:.1f}%", f"{profit_margin-20:.1f}% vs target")
-  
+    st.metric("📈 Margin", f"{profit_margin:.1f}%", f"{profit_margin-20:.1f}% vs target")
+
   # Performance Summary
   col1, col2 = st.columns(2)
-  
+
   with col1:
-   st.markdown('<div class="insight-box">', unsafe_allow_html=True)
-   st.markdown("### 📊 What These Numbers Mean")
-   st.markdown(f"""
-   **Volume Analysis:**
-   - The **{total_services} shipments** represent all packages handled by LFS Amsterdam
-   - With **{len(COUNTRIES)} countries**, we average {total_services/14:.0f} shipments per country
-   - **Netherlands (47 shipments)** handles 37.6% of total volume, confirming Amsterdam as the main hub
-   
-   **Service Distribution:**
-   - **8 service types** provide flexibility for different customer needs
-   - CX (37) and ROU (30) services dominate, representing express and routine deliveries
-   - This mix shows balanced operations between speed and cost-efficiency
-   """)
-   st.markdown('</div>', unsafe_allow_html=True)
-  
+    st.markdown('<div class="insight-box">', unsafe_allow_html=True)
+    st.markdown("### 📊 What These Numbers Mean")
+    st.markdown(f"""
+    **Volume Analysis:**
+    - The **{total_services} shipments** represent all packages handled by LFS Amsterdam
+    - With **{len(COUNTRIES)} countries**, we average {total_services/14:.0f} shipments per country
+    - **Netherlands (47 shipments)** handles 37.6% of total volume, confirming Amsterdam as the main hub
+
+    **Service Distribution:**
+    - **8 service types** provide flexibility for different customer needs
+    - CX (37) and ROU (30) services dominate, representing express and routine deliveries
+    - This mix shows balanced operations between speed and cost-efficiency
+    """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
   with col2:
-   st.markdown('<div class="insight-box">', unsafe_allow_html=True)
-   st.markdown("### 🎯 Performance Interpretation")
-   
-   if avg_otp >= 95:
-    st.markdown(f"""
-    ✅ **OTP at {avg_otp:.1f}%** means we deliver on-time {int(avg_otp/100 * total_orders)} out of {total_orders} orders
-    - This exceeds industry standard (95%), showing reliable service
-    - Customers can trust our delivery promises
-    """)
-   else:
-    st.markdown(f"""
-    ⚠️ **OTP at {avg_otp:.1f}%** means we're late on {total_orders - int(avg_otp/100 * total_orders)} out of {total_orders} orders
-    - We need {int((95-avg_otp)/100 * total_orders)} more on-time deliveries to hit target
-    - Each 1% improvement = {total_orders/100:.0f} more satisfied customers
-    """)
-   
-   if profit_margin >= 20:
-    st.markdown(f"""
-    ✅ **{profit_margin:.1f}% margin** means €{profit_margin:.0f} profit per €100 revenue
-    - Healthy profitability above 20% target
-    - Strong financial position for growth investments
-    """)
-   else:
-    st.markdown(f"""
-    ⚠️ **{profit_margin:.1f}% margin** needs improvement
-    - Currently €{profit_margin:.0f} profit per €100 revenue
-    - Need to increase by €{20-profit_margin:.0f} per €100 to hit target
-    """)
-   st.markdown('</div>', unsafe_allow_html=True)
- 
- # TAB 2: Volume Analysis
- with tab2:
+    st.markdown('<div class="insight-box">', unsafe_allow_html=True)
+    st.markdown("### 🎯 Performance Interpretation")
+
+    if avg_otp >= 95:
+      st.markdown(f"""
+      ✅ **OTP at {avg_otp:.1f}%** means we deliver on-time {int(avg_otp/100 * total_orders)} out of {total_orders} orders
+      - This exceeds industry standard (95%), showing reliable service
+      - Customers can trust our delivery promises
+      """)
+    else:
+      st.markdown(f"""
+      ⚠️ **OTP at {avg_otp:.1f}%** means we're late on {total_orders - int(avg_otp/100 * total_orders)} out of {total_orders} orders
+      - We need {int((95-avg_otp)/100 * total_orders)} more on-time deliveries to hit target
+      - Each 1% improvement = {total_orders/100:.0f} more satisfied customers
+      """)
+
+    if profit_margin >= 20:
+      st.markdown(f"""
+      ✅ **{profit_margin:.1f}% margin** means €{profit_margin:.0f} profit per €100 revenue
+      - Healthy profitability above 20% target
+      - Strong financial position for growth investments
+      """)
+    else:
+      st.markdown(f"""
+      ⚠️ **{profit_margin:.1f}% margin** needs improvement
+      - Currently €{profit_margin:.0f} profit per €100 revenue
+      - Need to increase by €{20-profit_margin:.0f} per €100 to hit target
+      """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# TAB 2: Volume Analysis
+with tab2:
   st.markdown('<h2 class="section-header">Volume Analysis by Service & Country</h2>', unsafe_allow_html=True)
-  
+
   if 'service_volumes' in tms_data and tms_data['service_volumes']:
-   col1, col2 = st.columns(2)
-   
-   with col1:
-    st.markdown('<p class="chart-title">Service Type Distribution - What We Ship</p>', unsafe_allow_html=True)
-    
-    service_data = pd.DataFrame(list(tms_data['service_volumes'].items()), 
-                              columns=['Service', 'Volume'])
-    service_data = service_data[service_data['Volume'] > 0]
-    
-    # Use darker colors
-    fig = px.bar(service_data, x='Service', y='Volume', 
-                color='Volume', 
-                color_continuous_scale=[[0, '#08519c'], [0.5, '#3182bd'], [1, '#6baed6']],
-                title='')
-    fig.update_layout(showlegend=False, height=400)
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Service breakdown with interpretation
-    service_table = service_data.copy()
-    service_table['Share %'] = (service_table['Volume'] / service_table['Volume'].sum() * 100).round(1)
-    service_table['Interpretation'] = service_table.apply(
-     lambda x: f"{'Leading' if x['Share %'] > 20 else 'Secondary' if x['Share %'] > 10 else 'Niche'} service",
-     axis=1
-    )
-    service_table = service_table.sort_values('Volume', ascending=False)
-    st.dataframe(service_table, hide_index=True, use_container_width=True)
-   
-   with col2:
-    st.markdown('<p class="chart-title">Country Distribution - Where We Operate</p>', unsafe_allow_html=True)
-    
-    if 'country_volumes' in tms_data and tms_data['country_volumes']:
-     country_data = pd.DataFrame(list(tms_data['country_volumes'].items()), 
-                               columns=['Country', 'Volume'])
-     
-     # Use darker green colors
-     fig = px.bar(country_data, x='Country', y='Volume',
-                 color='Volume', 
-                 color_continuous_scale=[[0, '#006d2c'], [0.5, '#31a354'], [1, '#74c476']],
-                 title='')
-     fig.update_layout(showlegend=False, height=400)
-     st.plotly_chart(fig, use_container_width=True)
-     
-     # Country breakdown with regions
-     country_table = country_data.copy()
-     country_table['Share %'] = (country_table['Volume'] / country_table['Volume'].sum() * 100).round(1)
-     country_table['Region'] = country_table['Country'].apply(
-      lambda x: 'Europe' if x in ['AT', 'BE', 'DE', 'DK', 'ES', 'FR', 'GB', 'IT', 'NL', 'SE'] 
-      else 'Americas' if x in ['US'] 
-      else 'Asia-Pacific' if x in ['AU', 'NZ'] 
-      else 'Other'
-     )
-     country_table = country_table.sort_values('Volume', ascending=False)
-     st.dataframe(country_table, hide_index=True, use_container_width=True)
-  
+    col1, col2 = st.columns(2)
+
+    with col1:
+      st.markdown('<p class="chart-title">Service Type Distribution - What We Ship</p>', unsafe_allow_html=True)
+
+      service_data = pd.DataFrame(list(tms_data['service_volumes'].items()), columns=['Service', 'Volume'])
+      service_data = service_data[service_data['Volume'] > 0]
+
+      fig = px.bar(
+        service_data, 
+        x='Service', 
+        y='Volume', 
+        color='Volume', 
+        color_continuous_scale=[[0, '#08519c'], [0.5, '#3182bd'], [1, '#6baed6']],
+        title=''
+      )
+      fig.update_layout(showlegend=False, height=400)
+      st.plotly_chart(fig, use_container_width=True)
+
+      service_table = service_data.copy()
+      service_table['Share %'] = (service_table['Volume'] / service_table['Volume'].sum() * 100).round(1)
+      service_table['Interpretation'] = service_table.apply(
+        lambda x: f"{'Leading' if x['Share %'] > 20 else 'Secondary' if x['Share %'] > 10 else 'Niche'} service",
+        axis=1
+      )
+      service_table = service_table.sort_values('Volume', ascending=False)
+      st.dataframe(service_table, hide_index=True, use_container_width=True)
+
+    with col2:
+      st.markdown('<p class="chart-title">Country Distribution - Where We Operate</p>', unsafe_allow_html=True)
+
+      if 'country_volumes' in tms_data and tms_data['country_volumes']:
+        country_data = pd.DataFrame(list(tms_data['country_volumes'].items()), columns=['Country', 'Volume'])
+
+        fig = px.bar(
+          country_data, 
+          x='Country', 
+          y='Volume',
+          color='Volume', 
+          color_continuous_scale=[[0, '#006d2c'], [0.5, '#31a354'], [1, '#74c476']],
+          title=''
+        )
+        fig.update_layout(showlegend=False, height=400)
+        st.plotly_chart(fig, use_container_width=True)
+
+        country_table = country_data.copy()
+        country_table['Share %'] = (country_table['Volume'] / country_table['Volume'].sum() * 100).round(1)
+        country_table['Region'] = country_table['Country'].apply(
+          lambda x: 'Europe' if x in ['AT', 'BE', 'DE', 'DK', 'ES', 'FR', 'GB', 'IT', 'NL', 'SE'] 
+          else 'Americas' if x in ['US']
+          else 'Asia-Pacific' if x in ['AU', 'NZ']
+          else 'Other'
+        )
+        country_table = country_table.sort_values('Volume', ascending=False)
+        st.dataframe(country_table, hide_index=True, use_container_width=True)
+
   # Service-Country Matrix Heatmap
   if 'service_country_matrix' in tms_data:
-   st.markdown('<p class="chart-title">Service-Country Matrix - What Services Go Where</p>', unsafe_allow_html=True)
-   
-   # Create matrix dataframe
-   matrix_data = []
-   for country in COUNTRIES:
-    row = {'Country': country}
-    for service in SERVICE_TYPES:
-     if country in tms_data['service_country_matrix'] and service in tms_data['service_country_matrix'][country]:
-      row[service] = tms_data['service_country_matrix'][country][service]
-     else:
-      row[service] = 0
-    matrix_data.append(row)
-   
-   matrix_df = pd.DataFrame(matrix_data)
-   matrix_df = matrix_df.set_index('Country')
-   
-   # Create heatmap
-   fig = px.imshow(matrix_df.T, 
-                  labels=dict(x="Country", y="Service Type", color="Volume"),
-                  title="",
-                  color_continuous_scale='YlOrRd',
-                  aspect='auto')
-   fig.update_layout(height=500)
-   st.plotly_chart(fig, use_container_width=True)
-  
-  # Detailed Analysis with meaning
+    st.markdown('<p class="chart-title">Service-Country Matrix - What Services Go Where</p>', unsafe_allow_html=True)
+
+    matrix_data = []
+    for country in COUNTRIES:
+      row = {'Country': country}
+      for service in SERVICE_TYPES:
+        if country in tms_data['service_country_matrix'] and service in tms_data['service_country_matrix'][country]:
+          row[service] = tms_data['service_country_matrix'][country][service]
+        else:
+          row[service] = 0
+      matrix_data.append(row)
+
+    matrix_df = pd.DataFrame(matrix_data)
+    matrix_df = matrix_df.set_index('Country')
+
+    fig = px.imshow(
+      matrix_df.T,
+      labels=dict(x="Country", y="Service Type", color="Volume"),
+      title="",
+      color_continuous_scale='YlOrRd',
+      aspect='auto'
+    )
+    fig.update_layout(height=500)
+    st.plotly_chart(fig, use_container_width=True)
+
+  # Detailed Analysis
   st.markdown('<div class="insight-box">', unsafe_allow_html=True)
   st.markdown("### 📦 Understanding the Volume Patterns")
   st.markdown(f"""
   **What the Service Distribution Tells Us:**
-  - **CX Service (37 shipments, 29.4%)**: This is our express service, showing high demand for fast deliveries
-  - **ROU Service (30 shipments, 23.8%)**: Routine/standard deliveries form our second-largest segment
-  - **CTX and FF Services (19 and 17 shipments)**: Specialized services maintaining steady demand
-  - **Zero SF volume**: Indicates either a new service or one that needs marketing attention
-  
-  **Geographic Insights - What the Country Numbers Mean:**
-  - **Netherlands (47 shipments)**: As our hub, NL processes 37.6% of all volume - both domestic and transit
-  - **France (17) & Italy (12)**: Strong Southern European presence, likely due to trade corridors
-  - **Germany (9) & UK (10)**: Major economies showing moderate volumes - growth opportunity
-  - **Small markets (DK, ES, SE, N1 with 1 each)**: Entry points for expansion
-  
-  **The Service-Country Matrix Reveals:**
-  - **Netherlands uses 7 of 8 services**: Most diverse operations, confirming hub status
-  - **France focuses on CX (8) and EGD (5)**: Preference for express and specialized services
-  - **US only uses CTX (4) and FF (4)**: Limited service penetration in American market
-  - **Single-service countries**: Many countries use only 1-2 services, showing expansion potential
-  
-  **Business Implications:**
-  - Hub-and-spoke model is working with Amsterdam central
-  - Service concentration in CX/ROU suggests operational efficiency focus
-  - Geographic spread provides risk diversification
-  - Clear growth paths in underserved markets and services
+  - CX Service (37 shipments, 29.4%): High demand for express deliveries
+  - ROU Service (30 shipments, 23.8%): Standard deliveries form second-largest segment
+  - CTX and FF Services (19 and 17 shipments): Specialized services with steady demand
+  - Zero SF volume: Indicates either a new or low-demand service
+
+  **Geographic Insights:**
+  - Netherlands (47 shipments): Hub for 37.6% of total volume
+  - France (17) & Italy (12): Strong Southern European presence
+  - Germany (9) & UK (10): Major economies with moderate volume
+  - Small markets (DK, ES, SE, N1): Entry points for future development
+
+  **Service-Country Matrix Findings:**
+  - Netherlands uses 7 of 8 services: Confirming hub role
+  - France focuses on CX (8) and EGD (5): Express and specialized services lead
+  - US only uses CTX (4) and FF (4): Limited penetration outside Europe
+  - Many countries rely on just 1–2 services: Potential for service expansion
   """)
   st.markdown('</div>', unsafe_allow_html=True)
- 
- # TAB 3: OTP Performance
- with tab3:
+
+# TAB 3: OTP Performance
+with tab3:
   st.markdown('<h2 class="section-header">On-Time Performance Analysis</h2>', unsafe_allow_html=True)
-  
+
   if 'otp' in tms_data and not tms_data['otp'].empty:
-   otp_df = tms_data['otp']
-   
-   # OTP Status Analysis
-   col1, col2 = st.columns(2)
-   
-   with col1:
-    st.markdown('<p class="chart-title">Delivery Performance Breakdown</p>', unsafe_allow_html=True)
-    
-    if 'Status' in otp_df.columns:
-     status_counts = otp_df['Status'].value_counts()
-     
-     fig = px.pie(values=status_counts.values, names=status_counts.index,
-                 title='',
-                 color_discrete_map={'ON TIME': '#2ca02c', 'LATE': '#d62728'})
-     fig.update_traces(textposition='inside', textinfo='percent+label')
-     st.plotly_chart(fig, use_container_width=True)
-    
-    # Performance Metrics with explanations
-    on_time_count = int(avg_otp/100 * total_orders)
-    late_count = total_orders - on_time_count
-    
-    metrics_data = pd.DataFrame({
-     'Metric': ['Total Orders', 'On-Time', 'Late', 'OTP Rate'],
-     'Value': [
-      f"{total_orders:,}",
-      f"{on_time_count:,}",
-      f"{late_count:,}",
-      f"{avg_otp:.1f}%"
-     ],
-     'What it means': [
-      'Total deliveries tracked',
-      'Delivered within promised time',
-      'Missed delivery window',
-      'Industry target is 95%'
-     ]
-    })
-    st.dataframe(metrics_data, hide_index=True, use_container_width=True)
-   
-   with col2:
-    st.markdown('<p class="chart-title">Root Causes of Delays</p>', unsafe_allow_html=True)
-    
-    if 'QC_Name' in otp_df.columns:
-     # Process all QC reasons
-     qc_data = []
-     for idx, value in otp_df['QC_Name'].dropna().items():
-      reasons = str(value).strip()
-      if reasons and reasons != 'nan':
-       qc_data.append(reasons)
-     
-     # Count occurrences
-     qc_counts = {}
-     for reasons in qc_data:
-      # Common delay reasons from the data
-      delay_reasons = [
-       'MNX-Incorrect QDT',
-       'Customer-Changed delivery parameters',
-       'Consignee-Driver waiting at delivery',
-       'Customer-Requested delay',
-       'Customer-Shipment not ready',
-       'Del Agt-Late del',
-       'Consignee-Changed delivery parameters'
-      ]
-      
-      for reason in delay_reasons:
-       if reason in reasons:
-        if reason not in qc_counts:
-         qc_counts[reason] = 0
-        qc_counts[reason] += 1
-     
-     if qc_counts:
-      # Categorize for visualization
-      category_summary = {
-       'Customer Issues': 0,
-       'System Errors': 0,
-       'Delivery Problems': 0
-      }
-      
-      for reason, count in qc_counts.items():
-       if 'Customer' in reason:
-        category_summary['Customer Issues'] += count
-       elif 'MNX' in reason:
-        category_summary['System Errors'] += count
-       else:
-        category_summary['Delivery Problems'] += count
-      
-      fig = px.bar(x=list(category_summary.keys()), y=list(category_summary.values()),
-                  title='',
-                  color=list(category_summary.values()),
-                  color_continuous_scale='Reds')
-      fig.update_layout(showlegend=False, xaxis_title='Category', yaxis_title='Count')
-      st.plotly_chart(fig, use_container_width=True)
-      
-      # Show detailed reasons
-      st.markdown("**Detailed Delay Reasons:**")
-      qc_detail_df = pd.DataFrame(list(qc_counts.items()), columns=['Reason', 'Count'])
-      qc_detail_df['Impact'] = qc_detail_df['Count'].apply(
-       lambda x: 'High' if x > 10 else 'Medium' if x > 5 else 'Low'
-      )
-      qc_detail_df = qc_detail_df.sort_values('Count', ascending=False)
-      st.dataframe(qc_detail_df, hide_index=True, use_container_width=True)
-  
-  # OTP Detailed Insights
+    otp_df = tms_data['otp']
+
+    # OTP Status Analysis
+    col1, col2 = st.columns(2)
+
+    with col1:
+      st.markdown('<p class="chart-title">Delivery Performance Breakdown</p>', unsafe_allow_html=True)
+
+      if 'Status' in otp_df.columns:
+        status_counts = otp_df['Status'].value_counts()
+        fig = px.pie(
+          values=status_counts.values,
+          names=status_counts.index,
+          title='',
+          color_discrete_map={'ON TIME': '#2ca02c', 'LATE': '#d62728'}
+        )
+        fig.update_traces(textposition='inside', textinfo='percent+label')
+        st.plotly_chart(fig, use_container_width=True)
+
+      # Performance Metrics
+      on_time_count = int(avg_otp / 100 * total_orders)
+      late_count = total_orders - on_time_count
+
+      metrics_data = pd.DataFrame({
+        'Metric': ['Total Orders', 'On-Time', 'Late', 'OTP Rate'],
+        'Value': [
+          f"{total_orders:,}",
+          f"{on_time_count:,}",
+          f"{late_count:,}",
+          f"{avg_otp:.1f}%"
+        ],
+        'Description': [
+          'Total deliveries tracked',
+          'Delivered within promised time',
+          'Missed delivery window',
+          'Industry target is 95%'
+        ]
+      })
+      st.dataframe(metrics_data, hide_index=True, use_container_width=True)
+
+    with col2:
+      st.markdown('<p class="chart-title">Root Causes of Delays</p>', unsafe_allow_html=True)
+
+      if 'QC_Name' in otp_df.columns:
+        qc_data = []
+        for _, value in otp_df['QC_Name'].dropna().items():
+          reasons = str(value).strip()
+          if reasons and reasons != 'nan':
+            qc_data.append(reasons)
+
+        qc_counts = {}
+        delay_reasons = [
+          'MNX-Incorrect QDT',
+          'Customer-Changed delivery parameters',
+          'Consignee-Driver waiting at delivery',
+          'Customer-Requested delay',
+          'Customer-Shipment not ready',
+          'Del Agt-Late del',
+          'Consignee-Changed delivery parameters'
+        ]
+
+        for reasons in qc_data:
+          for reason in delay_reasons:
+            if reason in reasons:
+              qc_counts[reason] = qc_counts.get(reason, 0) + 1
+
+        if qc_counts:
+          category_summary = {
+            'Customer Issues': 0,
+            'System Errors': 0,
+            'Delivery Problems': 0
+          }
+
+          for reason, count in qc_counts.items():
+            if 'Customer' in reason:
+              category_summary['Customer Issues'] += count
+            elif 'MNX' in reason:
+              category_summary['System Errors'] += count
+            else:
+              category_summary['Delivery Problems'] += count
+
+          fig = px.bar(
+            x=list(category_summary.keys()),
+            y=list(category_summary.values()),
+            title='',
+            color=list(category_summary.values()),
+            color_continuous_scale='Reds'
+          )
+          fig.update_layout(showlegend=False, xaxis_title='Category', yaxis_title='Count')
+          st.plotly_chart(fig, use_container_width=True)
+
+          st.markdown("**Detailed Delay Reasons:**")
+          qc_detail_df = pd.DataFrame(list(qc_counts.items()), columns=['Reason', 'Count'])
+          qc_detail_df['Impact'] = qc_detail_df['Count'].apply(
+            lambda x: 'High' if x > 10 else 'Medium' if x > 5 else 'Low'
+          )
+          qc_detail_df = qc_detail_df.sort_values('Count', ascending=False)
+          st.dataframe(qc_detail_df, hide_index=True, use_container_width=True)
+
+  # OTP Detailed Insights (Data-Driven Only)
   st.markdown('<div class="insight-box">', unsafe_allow_html=True)
-  st.markdown("### ⏱️ What the OTP Data Tells Us")
+  st.markdown("### ⏱️ OTP Data Overview")
   st.markdown(f"""
-  **Current Performance Explained:**
-  - At {avg_otp:.1f}% OTP, we successfully deliver {on_time_count} orders on time
-  - The {late_count} late deliveries represent {100-avg_otp:.1f}% of our volume
-  - {'Meeting' if avg_otp >= 95 else 'Missing'} the 95% industry standard by {abs(95-avg_otp):.1f}%
-  
-  **Understanding Delay Patterns:**
-  1. **Customer Issues (most frequent)**:
-  - "Changed delivery parameters" = last-minute address/time changes
-  - "Shipment not ready" = pickup delays at origin
-  - "Requested delay" = customer asks to postpone delivery
-  
-  2. **System Errors**:
-  - "MNX-Incorrect QDT" = our system calculated wrong delivery time
-  - Creates false expectations and planning issues
-  
-  3. **Delivery Challenges**:
-  - "Driver waiting" = nobody available to receive goods
-  - "Late delivery" = traffic, route issues, or capacity problems
-  
-  **Business Impact of Performance:**
-  - **Early deliveries**: Can cause customer storage problems, refused deliveries
-  - **On-time deliveries**: Build trust, enable customer planning
-  - **Late deliveries**: Risk penalties, damage relationships, lose future business
-  
-  **Action Points Based on Data:**
-  - Focus on customer communication to reduce parameter changes
-  - Fix QDT calculation system to set accurate expectations
-  - Implement delivery slot booking to reduce waiting times
-  - Consider {f'maintaining current processes' if avg_otp >= 95 else f'urgent improvement program to gain {95-avg_otp:.1f}% OTP'}
+  **Performance Metrics:**
+  - On-Time Deliveries: {on_time_count} shipments
+  - Late Deliveries: {late_count} shipments
+  - OTP Rate: {avg_otp:.1f}%
+  - Difference from 95% industry benchmark: {abs(95 - avg_otp):.1f}%
+
+  **Delay Breakdown by Category:**
+  - Customer-related issues include "Changed delivery parameters" and "Shipment not ready"
+  - System-related errors primarily involve "Incorrect QDT calculation"
+  - Delivery-related challenges include "Driver waiting" and "Late delivery"
+
+  **Impact:**
+  - Each late delivery affects reliability metrics and operational performance tracking
+  - Breakdown helps visualize where most delays originate
   """)
   st.markdown('</div>', unsafe_allow_html=True)
- 
+
 # TAB 4: Financial Analysis
 with tab4:
   st.markdown('<h2 class="section-header">Financial Performance & Profitability</h2>', unsafe_allow_html=True)
