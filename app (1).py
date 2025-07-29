@@ -592,7 +592,7 @@ with tab4:
 
         # === FINANCIAL OVERVIEW ===
         st.markdown('<p class="chart-title">Overall Financial Health</p>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns([1, 1, 1])
 
         with col1:
             st.markdown("**Revenue vs Cost Analysis**")
@@ -736,7 +736,7 @@ with tab4:
             fig = px.bar(lane_data.sort_values('Diff', ascending=False).head(15), x='Lane', y='Diff', title="Top 15 Lanes by Profit")
             st.plotly_chart(fig, use_container_width=True)
 
-        # === COUNTRY PERFORMANCE (Existing) ===
+        # === COUNTRY PERFORMANCE ===
         if 'PU_Country' in cost_df.columns:
             st.markdown('<p class="chart-title">Country-by-Country Financial Performance</p>', unsafe_allow_html=True)
             country_financials = cost_df.groupby('PU_Country').agg({
@@ -770,6 +770,8 @@ with tab4:
             display_financials = display_financials[['Revenue', 'Cost', 'Profit', 'Margin_Percent', 'Status']]
             display_financials.columns = ['Revenue (€)', 'Cost (€)', 'Profit (€)', 'Margin (%)', 'Status']
             st.dataframe(display_financials, use_container_width=True)
+
+
 
  # TAB 5: Lane Network
  with tab5:
