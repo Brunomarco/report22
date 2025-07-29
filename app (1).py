@@ -714,26 +714,38 @@ if tms_data is not None:
         st.plotly_chart(fig, use_container_width=True)
   
       # === MONTHLY AND QUARTERLY ANALYSIS ===
-      if 'ORD DT' in cost_df.columns:
+# === TIME-BASED FINANCIAL ANALYSIS ===
+# Clean column names to avoid hidden spaces or mismatched case
+      cost_df.columns = cost_df.columns.str.strip()  # remove spaces at start and end
+      cost_df.columns = cost_df.columns.str.upper()  # standardize to uppercase
+      
+      if 'ORD DT' in cost_df.columns:  # now it will match regardless of case
         st.markdown("### 📅 Time-Based Financial Analysis")
-        
-        # Convert date
+      
+        # Convert date column to datetime
         cost_df['ORD DT'] = pd.to_datetime(cost_df['ORD DT'], errors='coerce')
+      
+        # Filter out rows with invalid dates
+        cost_df = cost_df.dropna(subset=['ORD DT'])
+      
+        # Extract month and quarter
         cost_df['Month'] = cost_df['ORD DT'].dt.to_period('M').astype(str)
         cost_df['Quarter'] = cost_df['ORD DT'].dt.to_period('Q').astype(str)
       
-        # Monthly and quarterly aggregates
-        monthly = cost_df.groupby('Month').agg({
-          'Net_Revenue': 'sum',
-          'Total_Cost': 'sum',
-          'Diff': 'sum'
-        }).reset_index()
+        # Aggregate
+        monthly = cost_df.groupby('Month').agg({'Net_Revenue': 'sum', 'Total_Cost': 'sum', 'Diff': 'sum'}).reset_index()
+        quarterly = cost_df.groupby('Quarter').agg({'Net_Revenue': 'sum', 'Total_Cost': 'sum', 'Diff': 'sum'}).reset_index()
       
-        quarterly = cost_df.groupby('Quarter').agg({
-          'Net_Revenue': 'sum',
-          'Total_Cost': 'sum',
-          'Diff': 'sum'
-        }).reset_index()
+        col1, col2 = st.columns(2)
+        with col1:
+          fig = px.line(monthly, x='Month', y=['Net_Revenue', 'Total_Cost', 'Diff'], title="Monthly Revenue, Cost & Profit")
+          st.plotly_chart(fig, use_container_width=True)
+        with col2:
+          fig = px.line(quarterly, x='Quarter', y=['Net_Revenue', 'Total_Cost', 'Diff'], title="Quarterly Revenue, Cost & Profit")
+          st.plotly_chart(fig, use_container_width=True)
+      else:
+        st.warning(f"No order date (ORD DT) found. Available columns: {list(cost_df.columns)}")
+
       
         col1, col2 = st.columns(2)
         with col1:
