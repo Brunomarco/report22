@@ -771,30 +771,32 @@ if tms_data is not None:
   
       # === OUTLIER DETECTION ===
       if 'Diff' in cost_df.columns:
-        # Outlier Analysis
         st.markdown("### ✂ Outlier Analysis")
-        q1, q3 = cost_df['Diff'].quantile([0.25, 0.75])
-        iqr = q3 - q1
-        lower_bound, upper_bound = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-        outliers = cost_df[(cost_df['Diff'] < lower_bound) | (cost_df['Diff'] > upper_bound)]
-        st.write(f"Outliers detected: {len(outliers)} (removed outside range {lower_bound:,.2f} to {upper_bound:,.2f})")
-        
-        # Keep non-outliers
-        cleaned_df = cost_df[(cost_df['Diff'] >= lower_bound) & (cost_df['Diff'] <= upper_bound)].copy()
-        cleaned_df['Account_Color'] = cleaned_df['Account_Name']
-        
-        fig = px.histogram(
-          cleaned_df,
-          x='Diff',
-          color='Account_Color',
-          nbins=50,
-          title="Profit Distribution by Account (Outliers Removed)"
-        )
-        fig.update_layout(
-          height=500,
-          legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        if not cost_df.empty:
+          q1, q3 = cost_df['Diff'].quantile([0.25, 0.75])
+          iqr = q3 - q1
+          lower_bound, upper_bound = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+      
+          outliers = cost_df[(cost_df['Diff'] < lower_bound) | (cost_df['Diff'] > upper_bound)]
+          st.write(f"Outliers detected: {len(outliers)} (outside range {lower_bound:,.2f} to {upper_bound:,.2f})")
+      
+          cleaned_df = cost_df[(cost_df['Diff'] >= lower_bound) & (cost_df['Diff'] <= upper_bound)]
+      
+          # Box plot for clear distribution and outliers
+          fig = px.box(cost_df, y='Diff', title="Profit Distribution with Outliers")
+          st.plotly_chart(fig, use_container_width=True)
+      
+          # Histogram for non-outliers
+          fig = px.histogram(
+            cleaned_df,
+            x='Diff',
+            nbins=40,
+            title="Profit Distribution (Non-Outliers)"
+          )
+          fig.update_layout(height=450)
+          st.plotly_chart(fig, use_container_width=True)
+        else:
+          st.info("No financial data available for outlier analysis.")
 
   
       # === LANE ANALYSIS ===
