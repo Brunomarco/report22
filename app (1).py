@@ -654,7 +654,18 @@ if tms_data is not None:
         st.markdown("### 🔻 Top 10 Loss-Making Accounts")
         loss_df = cost_df[cost_df['Diff'] < 0]
         top_loss_accounts = loss_df.groupby('Account_Name')['Diff'].sum().nsmallest(10).reset_index()
-        fig = px.bar(top_loss_accounts, x='Account_Name', y='Diff', color='Account_Name', title="Top 10 Loss-Making Accounts")
+        
+        fig = px.bar(
+          top_loss_accounts,
+          x='Account_Name',
+          y='Diff',
+          color='Account_Name',
+          title="Top 10 Loss-Making Accounts"
+        )
+        fig.update_layout(
+          height=500,
+          legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)  # Legend below
+        )
         st.plotly_chart(fig, use_container_width=True)
   
         # Pareto chart for loss concentration
@@ -674,7 +685,18 @@ if tms_data is not None:
       if 'Account_Name' in cost_df.columns:
         st.markdown("### 📊 Profitability by Account")
         profit_by_account = cost_df.groupby('Account_Name')['Diff'].sum().reset_index()
-        fig = px.bar(profit_by_account.sort_values('Diff', ascending=False), x='Account_Name', y='Diff', color='Account_Name', title="Profitability by Account")
+        
+        fig = px.bar(
+          profit_by_account.sort_values('Diff', ascending=False),
+          x='Account_Name',
+          y='Diff',
+          color='Account_Name',
+          title="Profitability by Account"
+        )
+        fig.update_layout(
+          height=500,
+          legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+        )
         st.plotly_chart(fig, use_container_width=True)
   
       if 'Service' in cost_df.columns:
@@ -714,16 +736,31 @@ if tms_data is not None:
   
       # === OUTLIER DETECTION ===
       if 'Diff' in cost_df.columns:
+        # Outlier Analysis
         st.markdown("### ✂ Outlier Analysis")
         q1, q3 = cost_df['Diff'].quantile([0.25, 0.75])
         iqr = q3 - q1
         lower_bound, upper_bound = q1 - 1.5 * iqr, q3 + 1.5 * iqr
         outliers = cost_df[(cost_df['Diff'] < lower_bound) | (cost_df['Diff'] > upper_bound)]
         st.write(f"Outliers detected: {len(outliers)} (removed outside range {lower_bound:,.2f} to {upper_bound:,.2f})")
-  
-        cleaned_df = cost_df[(cost_df['Diff'] >= lower_bound) & (cost_df['Diff'] <= upper_bound)]
-        fig = px.histogram(cleaned_df, x='Diff', nbins=50, title="Profit Distribution (Outliers Removed)")
+        
+        # Keep non-outliers
+        cleaned_df = cost_df[(cost_df['Diff'] >= lower_bound) & (cost_df['Diff'] <= upper_bound)].copy()
+        cleaned_df['Account_Color'] = cleaned_df['Account_Name']
+        
+        fig = px.histogram(
+          cleaned_df,
+          x='Diff',
+          color='Account_Color',
+          nbins=50,
+          title="Profit Distribution by Account (Outliers Removed)"
+        )
+        fig.update_layout(
+          height=500,
+          legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+        )
         st.plotly_chart(fig, use_container_width=True)
+
   
       # === LANE ANALYSIS ===
       if 'Lane' in cost_df.columns:
