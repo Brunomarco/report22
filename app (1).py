@@ -705,7 +705,7 @@ if tms_data is not None:
           )
           st.plotly_chart(fig, use_container_width=True)
         else:
-          st.info("No profitability data available for billed shipments."))
+          st.info("No profitability data available for billed shipments.")
   
       if 'Service' in cost_df.columns:
         st.markdown("### 📊 Profitability by Service")
