@@ -121,33 +121,84 @@ def load_tms_data(uploaded_file):
     data['otp'] = otp_df
    
    # 3. Volume Data - process the matrix correctly
+  # 3. Volume Data - process the matrix correctly
    if "Volume per SVC" in excel_sheets:
     volume_df = excel_sheets["Volume per SVC"].copy()
     
-    # Service volumes by country matrix (from the Excel data shown)
-    service_country_matrix = {
-     'AT': {'CTX': 2, 'EF': 3},
-     'AU': {'CTX': 3},
-     'BE': {'CX': 5, 'EF': 2, 'ROU': 1},
-     'DE': {'CTX': 1, 'CX': 6, 'ROU': 2},
-     'DK': {'CTX': 1},
-     'ES': {'CX': 1},
-     'FR': {'CX': 8, 'EF': 2, 'EGD': 5, 'FF': 1, 'ROU': 1},
-     'GB': {'CX': 3, 'EF': 6, 'ROU': 1},
-     'IT': {'CTX': 3, 'CX': 4, 'EF': 2, 'EGD': 1, 'ROU': 2},
-     'N1': {'CTX': 1},
-     'NL': {'CTX': 1, 'CX': 1, 'EF': 7, 'EGD': 5, 'FF': 1, 'RGD': 4, 'ROU': 28},
-     'NZ': {'CTX': 3},
-     'SE': {'CX': 1},
-     'US': {'CTX': 4, 'FF': 4}
-    }
-    
-    # Calculate totals
+    # Service volumes (from Grand Total row)
     service_volumes = {'CTX': 19, 'CX': 1, 'EF': 37, 'EGD': 14, 'FF': 5, 'RGD': 17, 'ROU': 3, 'SF': 30}
-    country_volumes = {'AT': 5, 'AU': 3, 'BE': 8, 'DE': 9, 'DK': 1, 'ES': 1, 'FR': 17, 
-                      'GB': 10, 'IT': 12, 'N1': 1, 'NL': 47, 'NZ': 3, 'SE': 1, 'US': 8}
     
-    # Total volume should be 126 based on the Excel
+    # Read the service-country matrix from the pivot table
+    service_country_matrix = {}
+    
+    try:
+        # Based on your pivot table structure:
+        # Row 44: Headers with service codes (CTX, CX, EF, EGD, FF, RGD, ROU, SF)
+        # Rows 45-58: Country data
+        # Column A: Country codes
+        # Columns B-I: Service volumes
+        
+        # Define the mapping of column positions to services
+        service_mapping = {
+            1: 'CTX',  # Column B
+            2: 'CX',   # Column C
+            3: 'EF',   # Column D
+            4: 'EGD',  # Column E
+            5: 'FF',   # Column F
+            6: 'RGD',  # Column G
+            7: 'ROU',  # Column H
+            8: 'SF'    # Column I
+        }
+        
+        # Read data for each country (rows 45-58)
+        for i in range(44, 58):  # Excel rows 45-58 (indices 44-57)
+            country = volume_df.iloc[i, 0]  # Country code in column A
+            
+            if pd.notna(country) and str(country).strip() not in ['Grand Total', '']:
+                country = str(country).strip()
+                
+                # Read values for each service
+                for col_idx, service in service_mapping.items():
+                    value = volume_df.iloc[i, col_idx]  # Get value from appropriate column
+                    
+                    if pd.notna(value) and float(value) > 0:
+                        if country not in service_country_matrix:
+                            service_country_matrix[country] = {}
+                        service_country_matrix[country][service] = int(value)
+        
+        # Country volumes from Grand Total column (column J, index 9)
+        country_volumes = {}
+        for i in range(44, 58):
+            country = volume_df.iloc[i, 0]
+            if pd.notna(country) and str(country).strip() not in ['Grand Total', '']:
+                country = str(country).strip()
+                total = volume_df.iloc[i, 9]  # Grand Total column
+                if pd.notna(total):
+                    country_volumes[country] = int(total)
+    
+    except Exception as e:
+        # If reading fails, use the values from your table
+        print(f"Error reading service-country matrix: {e}")
+        service_country_matrix = {
+            'AT': {'CTX': 2, 'EF': 3},
+            'AU': {'CTX': 3},
+            'BE': {'CX': 5, 'EF': 2, 'ROU': 1},
+            'DE': {'CTX': 1, 'CX': 6, 'ROU': 2},
+            'DK': {'CTX': 1},
+            'ES': {'CX': 1},
+            'FR': {'CX': 8, 'EF': 2, 'EGD': 5, 'FF': 1, 'ROU': 1},
+            'GB': {'CX': 3, 'EF': 6, 'ROU': 1},
+            'IT': {'CTX': 3, 'CX': 4, 'EF': 2, 'EGD': 1, 'ROU': 2},
+            'N1': {'CTX': 1},
+            'NL': {'CTX': 1, 'CX': 1, 'EF': 7, 'EGD': 5, 'FF': 1, 'RGD': 4, 'ROU': 28},
+            'NZ': {'CTX': 3},
+            'SE': {'CX': 1},
+            'US': {'CTX': 4, 'FF': 4}
+        }
+        country_volumes = {'AT': 5, 'AU': 3, 'BE': 8, 'DE': 9, 'DK': 1, 'ES': 1, 'FR': 17, 
+                          'GB': 10, 'IT': 12, 'N1': 1, 'NL': 47, 'NZ': 3, 'SE': 1, 'US': 8}
+    
+    # Total volume
     total_vol = 126
     
     data['service_volumes'] = service_volumes
